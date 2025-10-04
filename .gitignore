@@ -1,0 +1,43 @@
+# Node.js
+node_modules/
+dist/
+*.lin
+*.log
+.env
+**/*.env   # Sembunyikan semua file .env di semua folder
+
+# Vite
+.vite/
+
+# TypeScript
+*.tsbuildinfo
+
+# macOS
+.DS_Store
+
+# Linux
+*~
+
+# VS Code
+.vscode/
+
+# Go
+/backend/prayerdb.sqlite
+/backend/vendor/
+/backend/bin/
+
+# Supabase
+supabase/.temp/
+
+# Build output
+build/
+out/
+
+# Database & temporary files
+*.sqlite
+*.bak
+*.tmp
+*.swp
+
+# Images cache
+src/assets/images/cache/
