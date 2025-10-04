@@ -1,66 +1,61 @@
-# Aplikasi Jadwal Shalat
 
-Aplikasi jadwal shalat dengan backend API Golang yang dapat dibagikan ke orang lain.
+# Aplikasi Jadwal Shalat Indonesia
+
+Aplikasi jadwal shalat dengan backend API Golang dan frontend React, mendukung pencarian lokasi otomatis/manual, serta data kota Indonesia statis tanpa API eksternal.
 
 ## 🏗️ Arsitektur
 
 - **Frontend**: React + TypeScript + Vite
 - **Backend**: Golang REST API
-- **Database**: Supabase PostgreSQL
+- **Database**: MySQL (bisa pakai Supabase, PlanetScale, atau MySQL lain)
 - **Deployment**: Backend dapat di-deploy ke mana saja (VPS, Cloud Run, Heroku, dll)
 
 ## 📋 Fitur
 
-- ✅ Menampilkan jadwal shalat berdasarkan koordinat lokasi
-- ✅ Deteksi lokasi otomatis menggunakan GPS
-- ✅ Input lokasi manual
-- ✅ Menampilkan waktu shalat saat ini dan berikutnya
-- ✅ Countdown ke waktu shalat berikutnya
-- ✅ API publik yang bisa dibagikan
-- ✅ Caching data di database untuk performa optimal
-- ✅ Responsive design
+- Menampilkan jadwal shalat berdasarkan lokasi (auto/manual)
+- Deteksi lokasi otomatis (GPS/geolocation)
+- Input lokasi manual (nama kota/kata kunci)
+- Referensi kota Indonesia statis, tanpa API eksternal
+- Menampilkan waktu shalat saat ini dan berikutnya
+- Countdown ke waktu shalat berikutnya
+- API publik, bisa dibagikan
+- Caching data di database untuk performa optimal
+- Responsive design
+
+## Screenshoot
+![alt text](image.png)
 
 ## 🚀 Cara Menjalankan
 
+
 ### 1. Setup Database
 
-Database Supabase sudah disiapkan. Dapatkan connection string dari Supabase dashboard Anda.
+Siapkan database MySQL. Buat tabel sesuai schema di bawah.
+
+go run main.go
 
 ### 2. Setup Backend (Golang)
 
 ```bash
 cd backend
-
-# Install dependencies
 go mod download
 
 # Setup environment variables
-cp .env.example .env
-# Edit .env dan isi DATABASE_URL dengan connection string Supabase Anda
+export DATABASE_URL="user:password@tcp(host:port)/database"
 
 # Jalankan server
 go run main.go
 ```
 
+
 Server akan berjalan di `http://localhost:8080`
+
 
 ### 3. Setup Frontend
 
 ```bash
-# Kembali ke root directory
-cd ..
-
-# Install dependencies
+cd ../project
 npm install
-
-# Setup environment variables
-cp .env.example .env
-# Edit .env dan isi:
-# - VITE_SUPABASE_URL dengan URL Supabase Anda
-# - VITE_SUPABASE_ANON_KEY dengan Anon Key Supabase Anda
-# - VITE_API_URL=http://localhost:8080 (atau URL backend yang sudah di-deploy)
-
-# Jalankan development server
 npm run dev
 ```
 
@@ -73,34 +68,33 @@ Frontend akan berjalan di `http://localhost:5173`
 http://localhost:8080/api
 ```
 
+
 ### Endpoints
 
 #### 1. Get Prayer Times
-Mendapatkan jadwal shalat untuk lokasi dan tanggal tertentu.
+Mendapatkan jadwal shalat untuk lokasi/kota dan tanggal tertentu.
 
 ```http
-GET /api/prayer-times?latitude={lat}&longitude={lon}&date={date}&city={city}
+GET /api/prayer-times?city={city}&date={date}
 ```
 
 **Query Parameters:**
-- `latitude` (required): Latitude lokasi (contoh: -6.2088)
-- `longitude` (required): Longitude lokasi (contoh: 106.8456)
-- `date` (optional): Tanggal dalam format YYYY-MM-DD (default: hari ini)
-- `city` (optional): Nama kota untuk label
+- `city` (optional): Nama kota/kata kunci (misal: "Bandung")
+- `date` (optional): Tanggal (YYYY-MM-DD, default: hari ini)
 
 **Response:**
 ```json
 {
-  "date": "2024-10-04",
+  "date": "2025-10-05",
   "fajr": "04:30",
   "sunrise": "05:45",
   "dhuhr": "12:00",
   "asr": "15:15",
   "maghrib": "18:00",
   "isha": "19:15",
-  "latitude": -6.2088,
-  "longitude": 106.8456,
-  "city": "Jakarta"
+  "latitude": -6.9175,
+  "longitude": 107.6191,
+  "city": "Bandung"
 }
 ```
 
@@ -109,35 +103,12 @@ GET /api/prayer-times?latitude={lat}&longitude={lon}&date={date}&city={city}
 curl "http://localhost:8080/api/prayer-times?latitude=-6.2088&longitude=106.8456&city=Jakarta"
 ```
 
+
 #### 2. Get Current Prayer Info
-Mendapatkan informasi waktu shalat saat ini dan berikutnya.
+Mendapatkan waktu shalat saat ini dan berikutnya.
 
 ```http
 GET /api/prayer-times/current?latitude={lat}&longitude={lon}
-```
-
-**Query Parameters:**
-- `latitude` (required): Latitude lokasi
-- `longitude` (required): Longitude lokasi
-
-**Response:**
-```json
-{
-  "current_prayer": "Dhuhr",
-  "next_prayer": "Asr",
-  "time_until_next": "3h 15m",
-  "prayer_times": {
-    "date": "2024-10-04",
-    "fajr": "04:30",
-    "sunrise": "05:45",
-    "dhuhr": "12:00",
-    "asr": "15:15",
-    "maghrib": "18:00",
-    "isha": "19:15",
-    "latitude": -6.2088,
-    "longitude": 106.8456
-  }
-}
 ```
 
 **Contoh Request:**
@@ -176,18 +147,15 @@ go build -o prayer-times-api main.go
 ./prayer-times-api
 ```
 
+docker build -t prayer-times-api .
+docker run -p 8080:8080 \
+
 ### Option 2: Deploy menggunakan Docker
 
 ```bash
 cd backend
-
-# Build Docker image
 docker build -t prayer-times-api .
-
-# Run container
-docker run -p 8080:8080 \
-  -e DATABASE_URL="your_database_url" \
-  prayer-times-api
+docker run -p 8080:8080 -e DATABASE_URL="your_database_url" prayer-times-api
 ```
 
 ### Option 3: Deploy ke Cloud Run (Google Cloud)
@@ -233,9 +201,10 @@ git push heroku main
 
 ## 🔧 Environment Variables
 
+
 ### Backend (.env)
 ```env
-DATABASE_URL=postgresql://user:password@host:port/database
+DATABASE_URL=user:password@tcp(host:port)/database
 PORT=8080
 ```
 
@@ -283,33 +252,34 @@ $data = json_decode($response, true);
 print_r($data);
 ```
 
+
 ## 🗄️ Database Schema
 
-Tabel `prayer_times_cache` digunakan untuk caching hasil perhitungan:
-
+Tabel `prayer_times_cache` untuk caching:
 ```sql
 CREATE TABLE prayer_times_cache (
-  id uuid PRIMARY KEY,
-  date date NOT NULL,
-  fajr text NOT NULL,
-  sunrise text NOT NULL,
-  dhuhr text NOT NULL,
-  asr text NOT NULL,
-  maghrib text NOT NULL,
-  isha text NOT NULL,
-  latitude numeric(10, 6) NOT NULL,
-  longitude numeric(10, 6) NOT NULL,
-  created_at timestamptz DEFAULT now(),
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  date DATE NOT NULL,
+  fajr VARCHAR(10) NOT NULL,
+  sunrise VARCHAR(10) NOT NULL,
+  dhuhr VARCHAR(10) NOT NULL,
+  asr VARCHAR(10) NOT NULL,
+  maghrib VARCHAR(10) NOT NULL,
+  isha VARCHAR(10) NOT NULL,
+  latitude DECIMAL(10,6) NOT NULL,
+  longitude DECIMAL(10,6) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UNIQUE(date, latitude, longitude)
 );
 ```
 
 ## 📝 Catatan
 
-- Perhitungan waktu shalat menggunakan metode standar dengan angle 18° untuk Fajr dan Isha
-- Data di-cache selama 7 hari untuk meningkatkan performa
-- API sudah menggunakan CORS untuk bisa diakses dari berbagai domain
-- Backend tidak memerlukan authentication, sehingga bersifat publik
+- Perhitungan waktu shalat menggunakan metode standar (bisa integrasi library go-prayer)
+- Data kota Indonesia statis, tidak perlu API eksternal
+- Data di-cache selama 7 hari untuk performa
+- API sudah menggunakan CORS
+- Backend publik, tidak perlu authentication
 
 ## 🤝 Kontribusi
 
