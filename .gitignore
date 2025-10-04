@@ -1,0 +1,42 @@
+# Node.js
+node_modules/
+dist/
+.env
+*.log
+
+# Vite
+.vite/
+
+# TypeScript
+*.tsbuildinfo
+
+# macOS
+.DS_Store
+
+# Linux
+*~
+
+# VS Code
+.vscode/
+
+# Go
+/backend/prayerdb.sqlite
+/backend/.env
+/backend/vendor/
+/backend/bin/
+
+# Supabase
+supabase/.temp/
+
+# Build output
+build/
+out/
+
+# Others
+*.sqlite
+*.bak
+*.tmp
+*.swp
+
+# Images cache
+src/assets/images/cache/
