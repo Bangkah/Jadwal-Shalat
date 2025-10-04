@@ -51,12 +51,8 @@ function App() {
     setError('');
 
     try {
-      const times = await getPrayerTimes(
-        location.latitude,
-        location.longitude,
-        undefined,
-        location.city
-      );
+      // Kirim hanya nama kota ke getPrayerTimes
+      const times = await getPrayerTimes(location.city);
       setPrayerTimes(times);
     } catch (err) {
       setError('Gagal mengambil jadwal shalat. Pastikan backend API berjalan.');

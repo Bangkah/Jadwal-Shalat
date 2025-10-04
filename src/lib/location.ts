@@ -23,8 +23,8 @@ export async function getCurrentLocation(): Promise<Location> {
 
 export function getDefaultLocation(): Location {
   return {
-    latitude: -6.2088,
-    longitude: 106.8456,
-    city: 'Jakarta',
+    latitude: 5.1870,
+    longitude: 97.1413,
+    city: 'Lhokseumawe',
   };
 }
