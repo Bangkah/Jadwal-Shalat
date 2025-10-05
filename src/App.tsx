@@ -1,239 +1,148 @@
-import { useState, useEffect } from 'react';
-import { PrayerTimeCard } from './components/PrayerTimeCard';
+import React, { useState, useEffect } from 'react';
+import { format } from 'date-fns';
+import { id } from 'date-fns/locale';
+import { Header } from './components/Header';
 import { LocationSelector } from './components/LocationSelector';
-import { getPrayerTimes, getCurrentPrayer, checkAPIHealth } from './lib/api';
-import { getDefaultLocation } from './lib/location';
-import type { PrayerTimes, CurrentPrayerInfo, Location } from './types/prayer';
-import './App.css';
+import { PrayerTimesGrid } from './components/PrayerTimesGrid';
+import { ApiStatus } from './components/ApiStatus';
+import { LoadingSpinner } from './components/LoadingSpinner';
+import { ErrorMessage } from './components/ErrorMessage';
+import { usePrayerTimes, useCurrentPrayer, useAutoRefresh } from './hooks/useApi';
+import type { Location } from './types/prayer';
 
 function App() {
-  const [location, setLocation] = useState<Location>(getDefaultLocation());
-  const [prayerTimes, setPrayerTimes] = useState<PrayerTimes | null>(null);
-  const [currentPrayerInfo, setCurrentPrayerInfo] = useState<CurrentPrayerInfo | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string>('');
-  const [apiStatus, setApiStatus] = useState<'checking' | 'online' | 'offline'>('checking');
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [currentTime, setCurrentTime] = useState('');
+  const [currentDate, setCurrentDate] = useState('');
+  const [location, setLocation] = useState<Location>({
+    latitude: 5.1870,
+    longitude: 97.1413,
+    city: 'Lhokseumawe',
+  });
 
+  // Auto-refresh prayer times every 5 minutes
+  const prayerTimesResult = useAutoRefresh(
+    () => usePrayerTimes({
+      latitude: location.latitude,
+      longitude: location.longitude,
+      city: location.city,
+    }),
+    5 * 60 * 1000 // 5 minutes
+  );
+
+  // Auto-refresh current prayer info every minute
+  const currentPrayerResult = useAutoRefresh(
+    () => useCurrentPrayer(location.latitude, location.longitude),
+    60 * 1000 // 1 minute
+  );
+
+  // Update current time every second
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
+    const updateTime = () => {
+      const now = new Date();
+      setCurrentTime(format(now, 'HH:mm:ss'));
+      setCurrentDate(format(now, 'EEEE, dd MMMM yyyy', { locale: id }));
+    };
 
-    return () => clearInterval(timer);
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+
+    return () => clearInterval(interval);
   }, []);
-
-  useEffect(() => {
-    checkAPI();
-  }, []);
-
-  useEffect(() => {
-    if (apiStatus === 'online') {
-      fetchPrayerTimes();
-      fetchCurrentPrayer();
-
-      const interval = setInterval(() => {
-        fetchCurrentPrayer();
-      }, 60000);
-
-      return () => clearInterval(interval);
-    }
-  }, [location, apiStatus]);
-
-  const checkAPI = async () => {
-    setApiStatus('checking');
-    const isHealthy = await checkAPIHealth();
-    setApiStatus(isHealthy ? 'online' : 'offline');
-  };
-
-  const fetchPrayerTimes = async () => {
-    setLoading(true);
-    setError('');
-
-    try {
-      // Kirim hanya nama kota ke getPrayerTimes
-      const times = await getPrayerTimes(location.city);
-      setPrayerTimes(times);
-    } catch (err) {
-      setError('Gagal mengambil jadwal shalat. Pastikan backend API berjalan.');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchCurrentPrayer = async () => {
-    try {
-      const info = await getCurrentPrayer(location.latitude, location.longitude);
-      setCurrentPrayerInfo(info);
-    } catch (err) {
-      console.error('Failed to fetch current prayer:', err);
-    }
-  };
 
   const handleLocationChange = (newLocation: Location) => {
     setLocation(newLocation);
   };
 
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('id-ID', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    }).format(date);
+  const handleRetry = () => {
+    prayerTimesResult.refetch();
+    currentPrayerResult.refetch();
   };
-
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('id-ID', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    });
-  };
-
-  if (apiStatus === 'checking') {
-    return (
-      <div className="app">
-        <div className="container">
-          <div className="loading-screen">
-            <div className="spinner"></div>
-            <p>Memeriksa koneksi API...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (apiStatus === 'offline') {
-    return (
-      <div className="app">
-        <div className="container">
-          <div className="error-screen">
-            <div className="error-icon">⚠️</div>
-            <h2>API Backend Tidak Tersedia</h2>
-            <p>Backend API belum berjalan. Silakan jalankan server Golang terlebih dahulu.</p>
-            <div className="instructions">
-              <h3>Cara menjalankan backend:</h3>
-              <ol>
-                <li>Buka folder backend</li>
-                <li>
-                  Atur environment variable <code>DATABASE_URL</code>
-                </li>
-                <li>
-                  Jalankan: <code>go run main.go</code>
-                </li>
-              </ol>
-            </div>
-            <button onClick={checkAPI} className="btn-retry">
-              Coba Lagi
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="app">
-      <div className="container">
-        <header className="header">
-          <h1>Jadwal Shalat</h1>
-          <div className="date-time">
-            <div className="date">{formatDate(currentTime)}</div>
-            <div className="time">{formatTime(currentTime)}</div>
-          </div>
-        </header>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      <Header currentTime={currentTime} currentDate={currentDate} />
+      
+      <main className="max-w-6xl mx-auto px-4 py-8 space-y-8">
+        {/* API Status */}
+        <ApiStatus showDetails={false} className="mb-4" />
 
-        <LocationSelector onLocationChange={handleLocationChange} currentLocation={location} />
+        {/* Location Selector */}
+        <LocationSelector
+          currentLocation={location}
+          onLocationChange={handleLocationChange}
+        />
 
-        {currentPrayerInfo && (
-          <div className="current-prayer-info">
-            <div className="info-card">
-              <div className="info-label">Waktu Shalat Sekarang</div>
-              <div className="info-value">{currentPrayerInfo.current_prayer}</div>
-            </div>
-            <div className="info-card highlight">
-              <div className="info-label">Shalat Berikutnya</div>
-              <div className="info-value">{currentPrayerInfo.next_prayer}</div>
-              <div className="info-countdown">{currentPrayerInfo.time_until_next}</div>
+        {/* Current Prayer Info */}
+        {currentPrayerResult.data && (
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 p-6">
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">Info Shalat Saat Ini</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="text-center">
+                <div className="text-sm text-gray-600 mb-1">Shalat Saat Ini</div>
+                <div className="text-2xl font-bold text-green-600">
+                  {currentPrayerResult.data.current_prayer || 'Tidak ada'}
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-sm text-gray-600 mb-1">Shalat Berikutnya</div>
+                <div className="text-2xl font-bold text-orange-600">
+                  {currentPrayerResult.data.next_prayer}
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-sm text-gray-600 mb-1">Waktu Tersisa</div>
+                <div className="text-lg font-semibold text-blue-600">
+                  {currentPrayerResult.data.time_until_next}
+                </div>
+              </div>
             </div>
           </div>
         )}
 
-        {loading ? (
-          <div className="loading">
-            <div className="spinner"></div>
-            <p>Memuat jadwal shalat...</p>
-          </div>
-        ) : error ? (
-          <div className="error">
-            <p>{error}</p>
-            <button onClick={fetchPrayerTimes} className="btn-retry">
-              Coba Lagi
-            </button>
-          </div>
-        ) : prayerTimes ? (
-          <div className="prayer-times-grid">
-            <PrayerTimeCard
-              name="Subuh"
-              time={prayerTimes.fajr}
-              isCurrent={currentPrayerInfo?.current_prayer === 'Fajr'}
-              isNext={currentPrayerInfo?.next_prayer === 'Fajr'}
-            />
-            <PrayerTimeCard
-              name="Terbit"
-              time={prayerTimes.sunrise}
-              isCurrent={currentPrayerInfo?.current_prayer === 'Sunrise'}
-              isNext={currentPrayerInfo?.next_prayer === 'Sunrise'}
-            />
-            <PrayerTimeCard
-              name="Dzuhur"
-              time={prayerTimes.dhuhr}
-              isCurrent={currentPrayerInfo?.current_prayer === 'Dhuhr'}
-              isNext={currentPrayerInfo?.next_prayer === 'Dhuhr'}
-            />
-            <PrayerTimeCard
-              name="Ashar"
-              time={prayerTimes.asr}
-              isCurrent={currentPrayerInfo?.current_prayer === 'Asr'}
-              isNext={currentPrayerInfo?.next_prayer === 'Asr'}
-            />
-            <PrayerTimeCard
-              name="Maghrib"
-              time={prayerTimes.maghrib}
-              isCurrent={currentPrayerInfo?.current_prayer === 'Maghrib'}
-              isNext={currentPrayerInfo?.next_prayer === 'Maghrib'}
-            />
-            <PrayerTimeCard
-              name="Isya"
-              time={prayerTimes.isha}
-              isCurrent={currentPrayerInfo?.current_prayer === 'Isha'}
-              isNext={currentPrayerInfo?.next_prayer === 'Isha'}
-            />
-          </div>
-        ) : null}
+        {/* Error Messages */}
+        {prayerTimesResult.error && (
+          <ErrorMessage message={prayerTimesResult.error} onRetry={handleRetry} />
+        )}
 
-        <footer className="footer">
-          <div className="api-info">
-            <h3>API Documentation</h3>
-            <div className="api-endpoints">
-              <div className="endpoint">
-                <code>GET /api/prayer-times</code>
-                <p>Parameters: latitude, longitude, date (optional), city (optional)</p>
-              </div>
-              <div className="endpoint">
-                <code>GET /api/prayer-times/current</code>
-                <p>Parameters: latitude, longitude</p>
-              </div>
-              <div className="endpoint">
-                <code>GET /api/health</code>
-                <p>Check API health status</p>
-              </div>
+        {currentPrayerResult.error && !prayerTimesResult.error && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+            <p className="text-yellow-800">
+              <strong>Peringatan:</strong> Gagal memuat info shalat real-time: {currentPrayerResult.error}
+            </p>
+          </div>
+        )}
+
+        {/* Loading State */}
+        {prayerTimesResult.loading && <LoadingSpinner />}
+
+        {/* Prayer Times Grid */}
+        {prayerTimesResult.data && !prayerTimesResult.loading && (
+          <PrayerTimesGrid 
+            prayerTimes={prayerTimesResult.data}
+            currentPrayerInfo={currentPrayerResult.data}
+          />
+        )}
+
+        {/* No Data State */}
+        {!prayerTimesResult.data && !prayerTimesResult.loading && !prayerTimesResult.error && (
+          <div className="text-center py-12">
+            <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 p-8">
+              <div className="text-6xl mb-4">🕌</div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                Pilih Lokasi untuk Melihat Jadwal Shalat
+              </h3>
+              <p className="text-gray-600">
+                Gunakan tombol di atas untuk memilih lokasi Anda
+              </p>
             </div>
           </div>
-        </footer>
-      </div>
+        )}
+
+        {/* Footer with API Status Details */}
+        <div className="mt-12">
+          <ApiStatus showDetails={true} />
+        </div>
+      </main>
     </div>
   );
 }

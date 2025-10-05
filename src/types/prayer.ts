@@ -23,3 +23,32 @@ export interface Location {
   longitude: number;
   city?: string;
 }
+
+export interface City {
+  name: string;
+  latitude: number;
+  longitude: number;
+}
+
+export type PrayerName = 'fajr' | 'sunrise' | 'dhuhr' | 'asr' | 'maghrib' | 'isha';
+
+export interface PrayerInfo {
+  name: PrayerName;
+  arabicName: string;
+  displayName: string;
+  time: string;
+  isCurrent: boolean;
+  isNext: boolean;
+}
+
+export interface ApiError {
+  error: string;
+  code?: number;
+}
+
+export interface HealthStatus {
+  status: 'healthy' | 'unhealthy';
+  time: string;
+  database: 'connected' | 'disconnected';
+  version: string;
+}

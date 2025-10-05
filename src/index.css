@@ -1,20 +1,36 @@
-:root {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  color-scheme: light;
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: system-ui, sans-serif;
+  }
+  
+  body {
+    @apply bg-gradient-to-br from-islamic-50 to-primary-50 min-h-screen;
+  }
 }
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-#root {
-  width: 100%;
+@layer components {
+  .prayer-card {
+    @apply bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 p-6 transition-all duration-300 hover:shadow-xl hover:scale-105;
+  }
+  
+  .prayer-time {
+    @apply text-2xl font-bold text-islamic-800;
+  }
+  
+  .prayer-name {
+    @apply text-lg font-semibold text-islamic-600 mb-2;
+  }
+  
+  .current-prayer {
+    @apply ring-2 ring-primary-400 bg-primary-50/50;
+  }
+  
+  .next-prayer {
+    @apply ring-2 ring-orange-400 bg-orange-50/50;
+  }
 }
