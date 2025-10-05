@@ -1,66 +1,290 @@
+# 🕌 Aplikasi Jadwal Shalat Indonesia
 
-# Aplikasi Jadwal Shalat Indonesia
+Aplikasi jadwal shalat modern dengan backend API Golang dan frontend React, mendukung pencarian lokasi otomatis/manual, serta data kota Indonesia lengkap tanpa ketergantungan API eksternal.
 
-Aplikasi jadwal shalat dengan backend API Golang dan frontend React, mendukung pencarian lokasi otomatis/manual, serta data kota Indonesia statis tanpa API eksternal.
+![Prayer Times App](https://images.pexels.com/photos/8728380/pexels-photo-8728380.jpeg?auto=compress&cs=tinysrgb&w=1200&h=400&fit=crop)
 
-## 🏗️ Arsitektur
+## 📋 Daftar Isi
 
-- **Frontend**: React + TypeScript + Vite
-- **Backend**: Golang REST API
-- **Database**: MySQL (bisa pakai Supabase, PlanetScale, atau MySQL lain)
-- **Deployment**: Backend dapat di-deploy ke mana saja (VPS, Cloud Run, Heroku, dll)
+- [Fitur Utama](#-fitur-utama)
+- [Arsitektur Sistem](#-arsitektur-sistem)
+- [Screenshot](#-screenshot)
+- [Prasyarat](#-prasyarat)
+- [Instalasi & Setup](#-instalasi--setup)
+- [Konfigurasi Database](#-konfigurasi-database)
+- [Menjalankan Backend](#-menjalankan-backend)
+- [Menjalankan Frontend](#-menjalankan-frontend)
+- [API Documentation](#-api-documentation)
+- [Deployment](#-deployment)
+- [Environment Variables](#-environment-variables)
+- [Troubleshooting](#-troubleshooting)
+- [Contributing](#-contributing)
+- [License](#-license)
 
-## 📋 Fitur
+## ✨ Fitur Utama
 
-- Menampilkan jadwal shalat berdasarkan lokasi (auto/manual)
-- Deteksi lokasi otomatis (GPS/geolocation)
-- Input lokasi manual (nama kota/kata kunci)
-- Referensi kota Indonesia statis, tanpa API eksternal
-- Menampilkan waktu shalat saat ini dan berikutnya
-- Countdown ke waktu shalat berikutnya
-- API publik, bisa dibagikan
-- Caching data di database untuk performa optimal
-- Responsive design
+### 🎯 **Fitur Inti**
+- ✅ **Jadwal Shalat Akurat** - Perhitungan menggunakan metode Kementerian Agama Indonesia
+- ✅ **30+ Kota Indonesia** - Data kota lengkap dari Sabang sampai Merauke
+- ✅ **Deteksi Lokasi Otomatis** - GPS/Geolocation dengan fallback manual
+- ✅ **Real-time Updates** - Auto-refresh setiap 5 menit
+- ✅ **Current Prayer Info** - Info shalat saat ini dan countdown ke shalat berikutnya
+- ✅ **Timezone Indonesia** - Otomatis WIB/WITA/WIT berdasarkan longitude
+- ✅ **Responsive Design** - Optimal di desktop, tablet, dan mobile
 
-## Screenshoot
-![alt text](image.png)
-![alt text](image-1.png)
+### 🚀 **Fitur Teknis**
+- ✅ **High Performance** - Database caching dengan PostgreSQL
+- ✅ **API Monitoring** - Health check dan status monitoring
+- ✅ **Error Handling** - Error handling yang comprehensive
+- ✅ **Type Safety** - Full TypeScript implementation
+- ✅ **Production Ready** - Docker support dan deployment guides
+- ✅ **Public API** - RESTful API yang bisa digunakan aplikasi lain
 
-## 🚀 Cara Menjalankan
+## 🏗️ Arsitektur Sistem
 
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Frontend      │    │    Backend      │    │   Database      │
+│   React + TS    │◄──►│   Golang API    │◄──►│  PostgreSQL     │
+│   + Tailwind    │    │   + go-prayer   │    │  + Supabase     │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+```
 
-### 1. Setup Database
+### **Tech Stack:**
+- **Frontend**: React 18 + TypeScript + Vite + Tailwind CSS
+- **Backend**: Golang 1.21 + Gorilla Mux + go-prayer library
+- **Database**: PostgreSQL (Supabase recommended)
+- **Deployment**: Docker + Cloud platforms (Vercel, Railway, etc.)
 
-Siapkan database MySQL. Buat tabel sesuai schema di bawah.
+## 📸 Screenshot
 
-go run main.go
+![Main Interface](https://images.pexels.com/photos/8728380/pexels-photo-8728380.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop)
 
-### 2. Setup Backend (Golang)
+*Interface utama aplikasi dengan jadwal shalat real-time*
 
+## 📋 Prasyarat
+
+Pastikan sistem Anda memiliki:
+
+- **Node.js** 18+ ([Download](https://nodejs.org/))
+- **Go** 1.21+ ([Download](https://golang.org/dl/))
+- **PostgreSQL** 13+ atau akun [Supabase](https://supabase.com) (Recommended)
+- **Git** ([Download](https://git-scm.com/))
+
+### Verifikasi Instalasi:
+```bash
+node --version    # v18.0.0+
+go version       # go1.21.0+
+psql --version   # PostgreSQL 13+
+git --version    # git 2.30.0+
+```
+
+## 🚀 Instalasi & Setup
+
+### 1. Clone Repository
+```bash
+git clone https://github.com/username/prayer-times-app.git
+cd prayer-times-app
+```
+
+### 2. Setup Backend Dependencies
 ```bash
 cd backend
 go mod download
-
-# Setup environment variables
-export DATABASE_URL="user:password@tcp(host:port)/database"
-
-# Jalankan server
-go run main.go
+go mod tidy
 ```
 
-
-Server akan berjalan di `http://localhost:8080`
-
-
-### 3. Setup Frontend
-
+### 3. Setup Frontend Dependencies
 ```bash
-cd ../project
+cd ../
 npm install
-npm run dev
 ```
 
-Frontend akan berjalan di `http://localhost:5173`
+## 🗄️ Konfigurasi Database
+
+### Option A: Menggunakan Supabase (Recommended)
+
+1. **Buat Akun Supabase**
+   - Kunjungi [supabase.com](https://supabase.com)
+   - Buat project baru
+   - Catat `Project URL` dan `anon key`
+
+2. **Setup Database Schema**
+   
+   Jalankan SQL berikut di Supabase SQL Editor:
+
+   ```sql
+   -- Tabel untuk cache waktu shalat
+   CREATE TABLE IF NOT EXISTS prayer_times_cache (
+     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+     date DATE NOT NULL,
+     fajr TIME NOT NULL,
+     sunrise TIME NOT NULL,
+     dhuhr TIME NOT NULL,
+     asr TIME NOT NULL,
+     maghrib TIME NOT NULL,
+     isha TIME NOT NULL,
+     latitude DECIMAL(10,6) NOT NULL,
+     longitude DECIMAL(10,6) NOT NULL,
+     city VARCHAR(100),
+     created_at TIMESTAMP DEFAULT now(),
+     UNIQUE(date, latitude, longitude)
+   );
+
+   -- Index untuk performa
+   CREATE INDEX IF NOT EXISTS idx_prayer_cache_date_location 
+   ON prayer_times_cache(date, latitude, longitude);
+
+   -- Enable RLS
+   ALTER TABLE prayer_times_cache ENABLE ROW LEVEL SECURITY;
+
+   -- Policy untuk akses publik read
+   CREATE POLICY "Anyone can read prayer times"
+     ON prayer_times_cache
+     FOR SELECT
+     TO public
+     USING (true);
+
+   -- Policy untuk authenticated users
+   CREATE POLICY "Authenticated users can insert prayer times"
+     ON prayer_times_cache
+     FOR INSERT
+     TO authenticated
+     WITH CHECK (true);
+
+   CREATE POLICY "Authenticated users can update prayer times"
+     ON prayer_times_cache
+     FOR UPDATE
+     TO authenticated
+     USING (true)
+     WITH CHECK (true);
+   ```
+
+3. **Konfigurasi Environment Variables**
+   ```bash
+   # Backend (.env)
+   DATABASE_URL="postgresql://postgres:[password]@db.[project-ref].supabase.co:5432/postgres"
+   PORT=8080
+
+   # Frontend (.env)
+   VITE_SUPABASE_URL="https://[project-ref].supabase.co"
+   VITE_SUPABASE_ANON_KEY="your-anon-key"
+   VITE_API_URL="http://localhost:8080"
+   ```
+
+### Option B: PostgreSQL Lokal
+
+1. **Install PostgreSQL**
+   ```bash
+   # Ubuntu/Debian
+   sudo apt update
+   sudo apt install postgresql postgresql-contrib
+
+   # macOS
+   brew install postgresql
+   brew services start postgresql
+
+   # Windows - Download dari postgresql.org
+   ```
+
+2. **Buat Database**
+   ```bash
+   sudo -u postgres psql
+   CREATE DATABASE prayer_times;
+   CREATE USER prayer_user WITH PASSWORD 'your_password';
+   GRANT ALL PRIVILEGES ON DATABASE prayer_times TO prayer_user;
+   \q
+   ```
+
+3. **Setup Schema**
+   ```bash
+   psql -U prayer_user -d prayer_times -f backend/schema.sql
+   ```
+
+## 🔧 Menjalankan Backend
+
+### Development Mode
+
+1. **Setup Environment**
+   ```bash
+   cd backend
+   cp .env.example .env
+   # Edit .env dengan database connection string Anda
+   ```
+
+2. **Jalankan Server**
+   ```bash
+   go run main.go
+   ```
+
+   Server akan berjalan di `http://localhost:8080`
+
+3. **Test API**
+   ```bash
+   # Health check
+   curl http://localhost:8080/api/health
+
+   # Get cities
+   curl http://localhost:8080/api/cities
+
+   # Get prayer times
+   curl "http://localhost:8080/api/prayer-times?city=Jakarta"
+   ```
+
+### Production Mode
+
+1. **Build Binary**
+   ```bash
+   go build -o prayer-times-api main.go
+   ```
+
+2. **Run Binary**
+   ```bash
+   ./prayer-times-api
+   ```
+
+### Docker Mode
+
+1. **Build Image**
+   ```bash
+   docker build -t prayer-times-api .
+   ```
+
+2. **Run Container**
+   ```bash
+   docker run -p 8080:8080 \
+     -e DATABASE_URL="your_database_url" \
+     prayer-times-api
+   ```
+
+## 🎨 Menjalankan Frontend
+
+### Development Mode
+
+1. **Setup Environment**
+   ```bash
+   cp .env.example .env
+   # Edit .env dengan konfigurasi Supabase dan API URL
+   ```
+
+2. **Start Development Server**
+   ```bash
+   npm run dev
+   ```
+
+   Frontend akan berjalan di `http://localhost:5173`
+
+### Production Build
+
+1. **Build untuk Production**
+   ```bash
+   npm run build
+   ```
+
+2. **Preview Build**
+   ```bash
+   npm run preview
+   ```
 
 ## 📡 API Documentation
 
@@ -69,57 +293,9 @@ Frontend akan berjalan di `http://localhost:5173`
 http://localhost:8080/api
 ```
 
-
 ### Endpoints
 
-#### 1. Get Prayer Times
-Mendapatkan jadwal shalat untuk lokasi/kota dan tanggal tertentu.
-
-```http
-GET /api/prayer-times?city={city}&date={date}
-```
-
-**Query Parameters:**
-- `city` (optional): Nama kota/kata kunci (misal: "Bandung")
-- `date` (optional): Tanggal (YYYY-MM-DD, default: hari ini)
-
-**Response:**
-```json
-{
-  "date": "2025-10-05",
-  "fajr": "04:30",
-  "sunrise": "05:45",
-  "dhuhr": "12:00",
-  "asr": "15:15",
-  "maghrib": "18:00",
-  "isha": "19:15",
-  "latitude": -6.9175,
-  "longitude": 107.6191,
-  "city": "Bandung"
-}
-```
-
-**Contoh Request:**
-```bash
-curl "http://localhost:8080/api/prayer-times?latitude=-6.2088&longitude=106.8456&city=Jakarta"
-```
-
-
-#### 2. Get Current Prayer Info
-Mendapatkan waktu shalat saat ini dan berikutnya.
-
-```http
-GET /api/prayer-times/current?latitude={lat}&longitude={lon}
-```
-
-**Contoh Request:**
-```bash
-curl "http://localhost:8080/api/prayer-times/current?latitude=-6.2088&longitude=106.8456"
-```
-
-#### 3. Health Check
-Mengecek status kesehatan API.
-
+#### 1. Health Check
 ```http
 GET /api/health
 ```
@@ -128,46 +304,174 @@ GET /api/health
 ```json
 {
   "status": "healthy",
-  "time": "2024-10-04T10:30:00Z"
+  "time": "2024-01-04T10:30:00Z",
+  "database": "connected",
+  "version": "2.0.0"
 }
 ```
 
-## 🌐 Deploy Backend ke Production
-
-### Option 1: Deploy ke VPS
-
-1. Copy file backend ke VPS Anda
-2. Install Go di VPS
-3. Build aplikasi:
-```bash
-go build -o prayer-times-api main.go
-```
-4. Setup systemd service atau gunakan process manager seperti PM2
-5. Jalankan aplikasi:
-```bash
-./prayer-times-api
+#### 2. Get Cities
+```http
+GET /api/cities
 ```
 
-docker build -t prayer-times-api .
-docker run -p 8080:8080 \
-
-### Option 2: Deploy menggunakan Docker
-
-```bash
-cd backend
-docker build -t prayer-times-api .
-docker run -p 8080:8080 -e DATABASE_URL="your_database_url" prayer-times-api
+**Response:**
+```json
+[
+  {
+    "name": "Jakarta",
+    "latitude": -6.2088,
+    "longitude": 106.8456
+  },
+  {
+    "name": "Bandung", 
+    "latitude": -6.9175,
+    "longitude": 107.6191
+  }
+]
 ```
 
-### Option 3: Deploy ke Cloud Run (Google Cloud)
+#### 3. Get Prayer Times
+```http
+GET /api/prayer-times?city={city}&date={date}
+GET /api/prayer-times?latitude={lat}&longitude={lon}&date={date}
+```
 
+**Parameters:**
+- `city` (optional): Nama kota (e.g., "Jakarta")
+- `latitude` (optional): Latitude lokasi
+- `longitude` (optional): Longitude lokasi  
+- `date` (optional): Tanggal (YYYY-MM-DD, default: hari ini)
+
+**Response:**
+```json
+{
+  "date": "2024-01-04",
+  "fajr": "04:30",
+  "sunrise": "05:45",
+  "dhuhr": "12:00",
+  "asr": "15:15",
+  "maghrib": "18:00",
+  "isha": "19:15",
+  "latitude": -6.2088,
+  "longitude": 106.8456,
+  "city": "Jakarta"
+}
+```
+
+#### 4. Get Current Prayer Info
+```http
+GET /api/prayer-times/current?latitude={lat}&longitude={lon}
+```
+
+**Response:**
+```json
+{
+  "current_prayer": "Dhuhr",
+  "next_prayer": "Asr",
+  "time_until_next": "3 jam 15 menit",
+  "prayer_times": {
+    "date": "2024-01-04",
+    "fajr": "04:30",
+    "sunrise": "05:45",
+    "dhuhr": "12:00",
+    "asr": "15:15",
+    "maghrib": "18:00",
+    "isha": "19:15",
+    "latitude": -6.2088,
+    "longitude": 106.8456
+  }
+}
+```
+
+### Contoh Penggunaan API
+
+#### JavaScript/TypeScript
+```javascript
+// Get prayer times
+const response = await fetch('http://localhost:8080/api/prayer-times?city=Jakarta');
+const data = await response.json();
+console.log(data);
+
+// Get current prayer info
+const currentResponse = await fetch('http://localhost:8080/api/prayer-times/current?latitude=-6.2088&longitude=106.8456');
+const currentData = await currentResponse.json();
+console.log(currentData);
+```
+
+#### Python
+```python
+import requests
+
+# Get prayer times
+response = requests.get('http://localhost:8080/api/prayer-times', params={
+    'city': 'Jakarta'
+})
+data = response.json()
+print(data)
+```
+
+#### cURL
 ```bash
-cd backend
+# Get prayer times by city
+curl "http://localhost:8080/api/prayer-times?city=Jakarta"
 
-# Build dan push ke Google Container Registry
+# Get prayer times by coordinates
+curl "http://localhost:8080/api/prayer-times?latitude=-6.2088&longitude=106.8456"
+
+# Get current prayer info
+curl "http://localhost:8080/api/prayer-times/current?latitude=-6.2088&longitude=106.8456"
+```
+
+## 🚀 Deployment
+
+### Frontend Deployment
+
+#### Vercel (Recommended)
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Deploy
+vercel
+
+# Set environment variables di Vercel dashboard
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_anon_key
+VITE_API_URL=your_backend_url
+```
+
+#### Netlify
+```bash
+# Build
+npm run build
+
+# Deploy dist folder ke Netlify
+# Set environment variables di Netlify dashboard
+```
+
+### Backend Deployment
+
+#### Railway (Recommended)
+```bash
+# Install Railway CLI
+npm install -g @railway/cli
+
+# Login dan deploy
+railway login
+railway init
+railway up
+
+# Set environment variables
+railway variables set DATABASE_URL="your_database_url"
+```
+
+#### Google Cloud Run
+```bash
+# Build dan push
 gcloud builds submit --tag gcr.io/YOUR_PROJECT_ID/prayer-times-api
 
-# Deploy ke Cloud Run
+# Deploy
 gcloud run deploy prayer-times-api \
   --image gcr.io/YOUR_PROJECT_ID/prayer-times-api \
   --platform managed \
@@ -176,14 +480,8 @@ gcloud run deploy prayer-times-api \
   --set-env-vars DATABASE_URL="your_database_url"
 ```
 
-### Option 4: Deploy ke Heroku
-
+#### Heroku
 ```bash
-cd backend
-
-# Login ke Heroku
-heroku login
-
 # Create app
 heroku create your-app-name
 
@@ -194,98 +492,251 @@ heroku buildpacks:set heroku/go
 heroku config:set DATABASE_URL="your_database_url"
 
 # Deploy
-git init
-git add .
-git commit -m "Initial commit"
-git push heroku main
+git subtree push --prefix backend heroku main
+```
+
+#### VPS dengan Docker
+```bash
+# Di server VPS
+git clone https://github.com/username/prayer-times-app.git
+cd prayer-times-app/backend
+
+# Build dan run
+docker build -t prayer-times-api .
+docker run -d -p 8080:8080 \
+  -e DATABASE_URL="your_database_url" \
+  --name prayer-api \
+  prayer-times-api
 ```
 
 ## 🔧 Environment Variables
 
-
 ### Backend (.env)
 ```env
-DATABASE_URL=user:password@tcp(host:port)/database
+# Database Configuration
+DATABASE_URL=postgresql://user:password@localhost:5432/prayer_times
+
+# Server Configuration  
 PORT=8080
+
+# Optional: Enable debug mode
+DEBUG=false
+
+# Optional: Set timezone
+TZ=Asia/Jakarta
 ```
 
 ### Frontend (.env)
 ```env
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+# Supabase Configuration
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+
+# Backend API URL
 VITE_API_URL=http://localhost:8080
+
+# Optional: Enable development mode
+VITE_DEV_MODE=true
 ```
 
-## 📱 Membagikan API ke Orang Lain
+## 🐛 Troubleshooting
 
-Setelah backend di-deploy, Anda bisa membagikan API endpoint kepada orang lain:
+### Common Issues
 
-1. Berikan base URL API (contoh: `https://your-api.com`)
-2. Share dokumentasi endpoint di atas
-3. Pastikan CORS sudah diaktifkan (sudah ter-konfigurasi di kode)
+#### 1. Database Connection Error
+```bash
+# Test connection
+psql "your_database_url"
 
-Contoh penggunaan untuk developer lain:
+# Check if database exists
+\l
 
-```javascript
-// JavaScript/TypeScript
-const response = await fetch('https://your-api.com/api/prayer-times?latitude=-6.2088&longitude=106.8456');
-const data = await response.json();
-console.log(data);
+# Check if tables exist
+\dt
 ```
 
-```python
-# Python
-import requests
+**Solution:**
+- Pastikan DATABASE_URL benar
+- Pastikan database server berjalan
+- Pastikan tabel sudah dibuat
 
-response = requests.get('https://your-api.com/api/prayer-times', params={
-    'latitude': -6.2088,
-    'longitude': 106.8456
-})
-data = response.json()
-print(data)
+#### 2. CORS Error
+```
+Access to fetch at 'http://localhost:8080' from origin 'http://localhost:5173' has been blocked by CORS policy
 ```
 
-```php
-// PHP
-$url = 'https://your-api.com/api/prayer-times?latitude=-6.2088&longitude=106.8456';
-$response = file_get_contents($url);
-$data = json_decode($response, true);
-print_r($data);
+**Solution:**
+- Pastikan backend berjalan di port 8080
+- Check CORS configuration di backend
+- Pastikan VITE_API_URL benar
+
+#### 3. Port Already in Use
+```bash
+# Find process using port
+lsof -i :8080
+
+# Kill process
+kill -9 PID
+
+# Or use different port
+export PORT=8081
 ```
 
+#### 4. Permission Denied (Docker)
+```bash
+# Fix permissions
+sudo chown -R $USER:$USER .
 
-## 🗄️ Database Schema
+# Or run with sudo
+sudo docker run ...
+```
 
-Tabel `prayer_times_cache` untuk caching:
+#### 5. Go Module Issues
+```bash
+# Clean module cache
+go clean -modcache
+
+# Re-download dependencies
+go mod download
+go mod tidy
+```
+
+#### 6. Node Module Issues
+```bash
+# Clear npm cache
+npm cache clean --force
+
+# Delete node_modules and reinstall
+rm -rf node_modules package-lock.json
+npm install
+```
+
+### Debug Mode
+
+#### Backend Debug
+```bash
+# Enable debug logging
+export DEBUG=true
+go run main.go
+```
+
+#### Frontend Debug
+```bash
+# Enable development mode
+export VITE_DEV_MODE=true
+npm run dev
+```
+
+### Performance Issues
+
+#### Database Optimization
 ```sql
-CREATE TABLE prayer_times_cache (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  date DATE NOT NULL,
-  fajr VARCHAR(10) NOT NULL,
-  sunrise VARCHAR(10) NOT NULL,
-  dhuhr VARCHAR(10) NOT NULL,
-  asr VARCHAR(10) NOT NULL,
-  maghrib VARCHAR(10) NOT NULL,
-  isha VARCHAR(10) NOT NULL,
-  latitude DECIMAL(10,6) NOT NULL,
-  longitude DECIMAL(10,6) NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(date, latitude, longitude)
-);
+-- Add indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_prayer_cache_date_location 
+ON prayer_times_cache(date, latitude, longitude);
+
+-- Analyze query performance
+EXPLAIN ANALYZE SELECT * FROM prayer_times_cache WHERE date = '2024-01-04';
 ```
 
-## 📝 Catatan
+#### Backend Optimization
+```go
+// Increase connection pool
+db.SetMaxOpenConns(50)
+db.SetMaxIdleConns(25)
+db.SetConnMaxLifetime(5 * time.Minute)
+```
 
-- Perhitungan waktu shalat menggunakan metode standar (bisa integrasi library go-prayer)
-- Data kota Indonesia statis, tidak perlu API eksternal
-- Data di-cache selama 7 hari untuk performa
-- API sudah menggunakan CORS
-- Backend publik, tidak perlu authentication
+## 🤝 Contributing
 
-## 🤝 Kontribusi
+Kami menyambut kontribusi dari komunitas! Berikut cara berkontribusi:
 
-Silakan fork dan buat pull request untuk kontribusi!
+### 1. Fork Repository
+```bash
+git clone https://github.com/your-username/prayer-times-app.git
+cd prayer-times-app
+```
+
+### 2. Create Feature Branch
+```bash
+git checkout -b feature/amazing-feature
+```
+
+### 3. Make Changes
+- Ikuti coding standards yang ada
+- Tambahkan tests jika diperlukan
+- Update documentation
+
+### 4. Commit Changes
+```bash
+git add .
+git commit -m "feat: add amazing feature"
+```
+
+### 5. Push dan Create PR
+```bash
+git push origin feature/amazing-feature
+```
+
+### Development Guidelines
+
+#### Code Style
+- **Go**: Gunakan `gofmt` dan `golint`
+- **TypeScript**: Gunakan Prettier dan ESLint
+- **Commits**: Gunakan conventional commits
+
+#### Testing
+```bash
+# Backend tests
+cd backend
+go test ./...
+
+# Frontend tests  
+npm test
+```
+
+#### Documentation
+- Update README jika menambah fitur
+- Tambahkan comments untuk code yang complex
+- Update API documentation
 
 ## 📄 License
 
-MIT License
+MIT License - lihat file [LICENSE](LICENSE) untuk detail lengkap.
+
+```
+Copyright (c) 2024 Prayer Times App
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+```
+
+## 🙏 Acknowledgments
+
+- [go-prayer](https://github.com/hablullah/go-prayer) - Library perhitungan waktu shalat
+- [Supabase](https://supabase.com) - Database dan backend services
+- [Tailwind CSS](https://tailwindcss.com) - CSS framework
+- [Lucide React](https://lucide.dev) - Icon library
+- Komunitas open source yang telah berkontribusi
+
+## 📞 Support
+
+Jika Anda mengalami masalah atau memiliki pertanyaan:
+
+1. **Check Documentation** - Baca README ini dengan teliti
+2. **Search Issues** - Cek [GitHub Issues](https://github.com/username/prayer-times-app/issues)
+3. **Create Issue** - Buat issue baru dengan detail yang lengkap
+4. **Join Discussion** - Bergabung di [GitHub Discussions](https://github.com/username/prayer-times-app/discussions)
+
+---
+
+**Dibuat dengan ❤️ untuk umat Muslim Indonesia**
+
+*Semoga aplikasi ini bermanfaat untuk membantu ibadah shalat kita semua. Aamiin.* 🤲

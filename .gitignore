@@ -1,43 +1,424 @@
-# Node.js
+# Dependencies
 node_modules/
+*/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Build outputs
 dist/
-*.lin
-*.log
+dist-ssr/
+build/
+*.local
+
+# Environment variables
 .env
-**/*.env   # Sembunyikan semua file .env di semua folder
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
 
-# Vite
-.vite/
+# Editor directories and files
+.vscode/
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
-# TypeScript
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output/
+
+# Dependency directories
+jspm_packages/
+
+# TypeScript cache
 *.tsbuildinfo
 
-# macOS
-.DS_Store
+# Optional npm cache directory
+.npm
 
-# Linux
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+out
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Gatsby files
+.cache/
+public
+
+# Storybook build outputs
+.out
+.storybook-out
+storybook-static
+
+# Temporary folders
+tmp/
+temp/
+
+# Backend specific
+backend/.env
+backend/prayer-times-api
+backend/main
+backend/*.exe
+backend/vendor/
+backend/coverage.out
+
+# Go specific
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Docker
+.dockerignore
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
 *~
 
-# VS Code
-.vscode/
-
-# Go
-/backend/prayerdb.sqlite
-/backend/vendor/
-/backend/bin/
-
-# Supabase
-supabase/.temp/
-
-# Build output
-build/
-out/
-
-# Database & temporary files
-*.sqlite
+# Backup files
 *.bak
-*.tmp
-*.swp
+*.backup
+*.sql.backup
+backup_*.sql
 
-# Images cache
-src/assets/images/cache/
+# SSL certificates
+*.pem
+*.key
+*.crt
+*.csr
+ssl/
+
+# Deployment
+.vercel
+.netlify
+.railway
+
+# Testing
+coverage/
+.nyc_output/
+junit.xml
+
+# Monitoring and logs
+*.log
+logs/
+monitoring/
+
+# Cache
+.cache/
+*.cache
+
+# Lock files (keep package-lock.json but ignore others)
+yarn.lock
+pnpm-lock.yaml
+
+# Local development
+.local/
+local/
+
+# Documentation build
+docs/_build/
+site/
+
+# Python (if any Python scripts)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+
+# Rust (if any Rust components)
+target/
+Cargo.lock
+
+# Java (if any Java components)
+*.class
+*.jar
+*.war
+*.ear
+
+# Archives
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Images (except icons and logos)
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+*.ico
+
+# Videos
+*.mp4
+*.avi
+*.mov
+*.wmv
+*.flv
+
+# Audio
+*.mp3
+*.wav
+*.flac
+*.aac
+
+# Fonts (except web fonts in public)
+*.ttf
+*.otf
+*.woff
+*.woff2
+*.eot
+
+# Ignore everything in uploads directory
+uploads/*
+!uploads/.gitkeep
+
+# Ignore everything in storage directory
+storage/*
+!storage/.gitkeep
+
+# Ignore config files with sensitive data
+config/database.yml
+config/secrets.yml
+config/master.key
+
+# Ignore generated files
+generated/
+auto-generated/
+
+# Ignore vendor directories
+vendor/
+third_party/
+
+# Ignore build artifacts
+*.o
+*.a
+*.lib
+*.dll
+*.so
+*.dylib
+
+# Ignore package files
+*.deb
+*.rpm
+*.pkg
+*.dmg
+*.msi
+
+# Ignore compressed files
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.zip
+*.rar
+*.7z
+
+# Ignore temporary files
+*~
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+
+# Ignore OS specific files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Ignore editor specific files
+*.sublime-project
+*.sublime-workspace
+.vscode/settings.json
+.vscode/launch.json
+.vscode/extensions.json
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Ignore test files
+test-results/
+coverage/
+*.coverage
+.coverage
+htmlcov/
+
+# Ignore documentation
+docs/build/
+docs/_build/
+site/
+
+# Ignore deployment files
+.deploy/
+deploy/
+deployment/
+
+# Ignore monitoring files
+monitoring/
+metrics/
+traces/
+
+# Ignore backup files
+*.backup
+*.bak
+*.old
+*.orig
+
+# Ignore patch files
+*.patch
+*.diff
+
+# Ignore profiling files
+*.prof
+*.pprof
+*.mem
+*.cpu
+
+# Ignore debug files
+debug/
+*.debug
+core.*
+
+# Ignore benchmark files
+*.bench
+benchmark/
+
+# Ignore example files (keep example configs)
+examples/
+samples/
+demo/
+
+# Ignore migration files (keep schema)
+migrations/*.sql
+!migrations/schema.sql
+
+# Ignore seed files
+seeds/
+fixtures/
+
+# Ignore generated documentation
+api-docs/
+swagger-ui/
+redoc/
+
+# Ignore generated types
+types/generated/
+*.generated.ts
+*.generated.go
+
+# Ignore build tools
+.build/
+build-tools/
+scripts/build/
+
+# Ignore CI/CD artifacts
+.github/workflows/artifacts/
+.gitlab-ci/artifacts/
+.circleci/artifacts/
+
+# Ignore security files
+.secrets/
+secrets/
+*.secret
+*.private
+
+# Ignore performance files
+*.perf
+performance/
+benchmarks/
+
+# Ignore analytics files
+analytics/
+stats/
+metrics/
+
+# Ignore experimental files
+experimental/
+playground/
+sandbox/

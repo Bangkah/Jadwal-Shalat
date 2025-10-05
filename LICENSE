@@ -1,0 +1,120 @@
+MIT License
+
+Copyright (c) 2024 Prayer Times Indonesia App
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+## Third-Party Licenses
+
+This project uses the following third-party libraries:
+
+### Backend Dependencies
+
+- **Gorilla Mux** (BSD-3-Clause License)
+  - Copyright (c) 2012-2018 The Gorilla Authors
+  - https://github.com/gorilla/mux
+
+- **go-prayer** (MIT License)
+  - Copyright (c) 2021 Hablullah
+  - https://github.com/hablullah/go-prayer
+
+- **lib/pq** (MIT License)
+  - Copyright (c) 2011-2013, 'pq' Contributors
+  - https://github.com/lib/pq
+
+- **CORS** (MIT License)
+  - Copyright (c) 2014 Olivier Poitrey
+  - https://github.com/rs/cors
+
+### Frontend Dependencies
+
+- **React** (MIT License)
+  - Copyright (c) Facebook, Inc. and its affiliates
+  - https://github.com/facebook/react
+
+- **Vite** (MIT License)
+  - Copyright (c) 2019-present, Yuxi (Evan) You and Vite contributors
+  - https://github.com/vitejs/vite
+
+- **Tailwind CSS** (MIT License)
+  - Copyright (c) Tailwind Labs, Inc.
+  - https://github.com/tailwindlabs/tailwindcss
+
+- **Lucide React** (ISC License)
+  - Copyright (c) 2020, Lucide Contributors
+  - https://github.com/lucide-icons/lucide
+
+- **date-fns** (MIT License)
+  - Copyright (c) 2021 Sasha Koss and Lesha Koss
+  - https://github.com/date-fns/date-fns
+
+- **Supabase JS** (MIT License)
+  - Copyright (c) 2020 Supabase
+  - https://github.com/supabase/supabase-js
+
+### Development Dependencies
+
+- **TypeScript** (Apache-2.0 License)
+  - Copyright Microsoft Corporation
+  - https://github.com/microsoft/TypeScript
+
+- **ESLint** (MIT License)
+  - Copyright OpenJS Foundation and other contributors
+  - https://github.com/eslint/eslint
+
+- **Prettier** (MIT License)
+  - Copyright James Long and contributors
+  - https://github.com/prettier/prettier
+
+### Database
+
+- **PostgreSQL** (PostgreSQL License)
+  - Copyright (c) 1996-2023, PostgreSQL Global Development Group
+  - https://www.postgresql.org/
+
+### Infrastructure
+
+- **Docker** (Apache-2.0 License)
+  - Copyright 2013-2023 Docker, Inc.
+  - https://github.com/docker/docker
+
+- **Nginx** (2-clause BSD License)
+  - Copyright (C) 2002-2023 Igor Sysoev
+  - Copyright (C) 2011-2023 Nginx, Inc.
+  - https://nginx.org/
+
+## Attribution
+
+This project includes prayer time calculations based on astronomical algorithms
+and Islamic jurisprudence. The calculations follow the standards set by the
+Indonesian Ministry of Religious Affairs (Kementerian Agama RI).
+
+## Disclaimer
+
+This software is provided for informational purposes only. While we strive for
+accuracy in prayer time calculations, users should verify times with local
+Islamic authorities. The developers are not responsible for any religious
+obligations missed due to reliance on this software.
+
+## Contributing
+
+By contributing to this project, you agree that your contributions will be
+licensed under the same MIT License that covers the project.
