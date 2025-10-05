@@ -162,7 +162,7 @@ backup:
 # Restore database
 restore:
 	@echo "Restoring database from backup..."
-	@read -p "Enter backup file path: " backup_file; \
+	@read -p "Enter backup file path: \" backup_file; \
 	psql $(DATABASE_URL) < $$backup_file
 	@echo "Database restored!"
 

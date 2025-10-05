@@ -37,7 +37,7 @@ This project uses the following third-party libraries:
   - https://github.com/hablullah/go-prayer
 
 - **lib/pq** (MIT License)
-  - Copyright (c) 2011-2013, 'pq' Contributors
+  - Copyright (c) 2011-2013, 'pq\' Contributors
   - https://github.com/lib/pq
 
 - **CORS** (MIT License)
