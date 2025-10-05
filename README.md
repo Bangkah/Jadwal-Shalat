@@ -56,12 +56,6 @@ Aplikasi jadwal shalat modern dengan backend API Golang dan frontend React, mend
 - **Database**: PostgreSQL (Supabase recommended)
 - **Deployment**: Docker + Cloud platforms (Vercel, Railway, etc.)
 
-## 📸 Screenshot
-
-![Main Interface](https://images.pexels.com/photos/8728380/pexels-photo-8728380.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop)
-
-*Interface utama aplikasi dengan jadwal shalat real-time*
-
 ## 📋 Prasyarat
 
 Pastikan sistem Anda memiliki:
@@ -83,7 +77,7 @@ git --version    # git 2.30.0+
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/username/prayer-times-app.git
+git clone https://github.com/Bangkah/prayer-times-app.git
 cd prayer-times-app
 ```
 
