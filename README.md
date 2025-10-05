@@ -2,8 +2,6 @@
 
 Aplikasi jadwal shalat modern dengan backend API Golang dan frontend React, mendukung pencarian lokasi otomatis/manual, serta data kota Indonesia lengkap tanpa ketergantungan API eksternal.
 
-![Prayer Times App](https://images.pexels.com/photos/8728380/pexels-photo-8728380.jpeg?auto=compress&cs=tinysrgb&w=1200&h=400&fit=crop)
-
 ## 📋 Daftar Isi
 
 - [Fitur Utama](#-fitur-utama)
