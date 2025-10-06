@@ -1,3 +1,4 @@
+
 package main
 
 import (
@@ -16,6 +17,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 	"github.com/hablullah/go-prayer"
+	"github.com/joho/godotenv"
 )
 
 type PrayerTimes struct {
@@ -162,13 +164,18 @@ var indonesiaCities = map[string]City{
 }
 
 func main() {
+	// Load environment variables
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("No .env file found, using system environment variables")
+	}
+
 	// Initialize database connection
-	var err error
 	dbURL := os.Getenv("DATABASE_URL")
 	if dbURL != "" {
-		db, err = sql.Open("postgres", dbURL)
-		if err != nil {
-			log.Fatalf("Failed to connect to database: %v", err)
+		db, dbErr := sql.Open("postgres", dbURL)
+		if dbErr != nil {
+			log.Fatalf("Failed to connect to database: %v", dbErr)
 		}
 		
 		// Configure connection pool
@@ -423,31 +430,40 @@ func getCurrentPrayerHandler(w http.ResponseWriter, r *http.Request) {
 func calculatePrayerTimes(lat, lon float64, date time.Time) PrayerTimes {
 	// Use go-prayer library for accurate calculations
 	config := prayer.Config{
-		Latitude:             lat,
-		Longitude:            lon,
-		Elevation:            0,
-		CalculationMethod:    prayer.Kemenag, // Indonesian method
-		AsrConvention:        prayer.Shafii,
-		PreciseToSeconds:     false,
+		Latitude:         lat,
+		Longitude:        lon,
+		Elevation:        0,
+		PreciseToSeconds: false,
 	}
 
-	prayers, err := prayer.Calculate(config, date)
-	if err != nil {
+	// Julian Day calculation
+	y, m, d := date.Date()
+	if m <= 2 {
+		y--
+		m += 12
+	}
+	a := y / 100
+	b := 2 - a + a/4
+	julianDay := int(365.25*float64(y+4716)) + int(30.6001*float64(m+1)) + d + b - 1524
+
+	prayers, err := prayer.Calculate(config, julianDay)
+	if err != nil || len(prayers) == 0 {
 		// Fallback to simple calculation
 		return calculateSimplePrayerTimes(lat, lon, date)
 	}
 
-	// Convert to local timezone (WIB/WITA/WIT based on longitude)
 	timezone := getIndonesianTimezone(lon)
 	loc, _ := time.LoadLocation(timezone)
 
+	schedule := prayers[0]
+
 	return PrayerTimes{
-		Fajr:      prayers.Fajr.In(loc).Format("15:04"),
-		Sunrise:   prayers.Sunrise.In(loc).Format("15:04"),
-		Dhuhr:     prayers.Dhuhr.In(loc).Format("15:04"),
-		Asr:       prayers.Asr.In(loc).Format("15:04"),
-		Maghrib:   prayers.Maghrib.In(loc).Format("15:04"),
-		Isha:      prayers.Isha.In(loc).Format("15:04"),
+		Fajr:      schedule.Fajr.In(loc).Format("15:04"),
+		Sunrise:   schedule.Sunrise.In(loc).Format("15:04"),
+		Dhuhr:     schedule.Zuhr.In(loc).Format("15:04"),
+		Asr:       schedule.Asr.In(loc).Format("15:04"),
+		Maghrib:   schedule.Maghrib.In(loc).Format("15:04"),
+		Isha:      schedule.Isha.In(loc).Format("15:04"),
 		Latitude:  lat,
 		Longitude: lon,
 		Date:      date.Format("2006-01-02"),
@@ -509,7 +525,7 @@ func getCurrentAndNextPrayer(pt PrayerTimes, now time.Time) (string, string, str
 	var current, next string
 	var nextTime time.Time
 
-	for i, prayer := range prayers {
+	for _, prayer := range prayers {
 		if currentTime >= prayer.time {
 			current = prayer.name
 		} else {
