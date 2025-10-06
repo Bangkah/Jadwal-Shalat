@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapPin, Navigation, Search, Loader2, Globe } from 'lucide-react';
+import { MapPin, Navigation, Search, Loader as Loader2, Globe } from 'lucide-react';
 import { useCities } from '../hooks/useApi';
 import type { Location, City } from '../types/prayer';
 
