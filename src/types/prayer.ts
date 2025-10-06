@@ -26,8 +26,10 @@ export interface Location {
 
 export interface City {
   name: string;
+  province: string;
   latitude: number;
   longitude: number;
+  timezone: string;
 }
 
 export type PrayerName = 'fajr' | 'sunrise' | 'dhuhr' | 'asr' | 'maghrib' | 'isha';
@@ -51,4 +53,5 @@ export interface HealthStatus {
   time: string;
   database: 'connected' | 'disconnected';
   version: string;
+  cities_count: number;
 }

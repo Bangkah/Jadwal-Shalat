@@ -38,6 +38,14 @@ type CurrentPrayerInfo struct {
 	PrayerTimes      PrayerTimes `json:"prayer_times"`
 }
 
+type City struct {
+	Name      string  `json:"name"`
+	Province  string  `json:"province"`
+	Latitude  float64 `json:"latitude"`
+	Longitude float64 `json:"longitude"`
+	Timezone  string  `json:"timezone"`
+}
+
 type ErrorResponse struct {
 	Error string `json:"error"`
 }
@@ -47,11 +55,111 @@ type HealthResponse struct {
 	Time      string `json:"time"`
 	Database  string `json:"database"`
 	Version   string `json:"version"`
+	Cities    int    `json:"cities_count"`
 }
 
 var db *sql.DB
 
-const VERSION = "2.0.0"
+const VERSION = "2.1.0"
+
+// 50+ Kota Indonesia dengan fokus pada Aceh dan kota-kota besar lainnya
+var indonesiaCities = map[string]City{
+	// ACEH (15 kota/kabupaten)
+	"banda aceh":     {"Banda Aceh", "Aceh", 5.5483, 95.3238, "Asia/Jakarta"},
+	"lhokseumawe":    {"Lhokseumawe", "Aceh", 5.1870, 97.1413, "Asia/Jakarta"},
+	"langsa":         {"Langsa", "Aceh", 4.4683, 97.9683, "Asia/Jakarta"},
+	"sabang":         {"Sabang", "Aceh", 5.8947, 95.3222, "Asia/Jakarta"},
+	"meulaboh":       {"Meulaboh", "Aceh", 4.1372, 96.1266, "Asia/Jakarta"},
+	"sigli":          {"Sigli", "Aceh", 5.3864, 95.9619, "Asia/Jakarta"},
+	"bireuen":        {"Bireuen", "Aceh", 5.2030, 96.7017, "Asia/Jakarta"},
+	"takengon":       {"Takengon", "Aceh", 4.6272, 96.8286, "Asia/Jakarta"},
+	"calang":         {"Calang", "Aceh", 4.3667, 95.6667, "Asia/Jakarta"},
+	"jantho":         {"Jantho", "Aceh", 5.2833, 95.6167, "Asia/Jakarta"},
+	"kutacane":       {"Kutacane", "Aceh", 3.7333, 97.9167, "Asia/Jakarta"},
+	"blangkejeren":   {"Blangkejeren", "Aceh", 4.1667, 97.1667, "Asia/Jakarta"},
+	"idi":            {"Idi", "Aceh", 4.9167, 97.8333, "Asia/Jakarta"},
+	"tapaktuan":      {"Tapaktuan", "Aceh", 3.2667, 97.2000, "Asia/Jakarta"},
+	"subulussalam":   {"Subulussalam", "Aceh", 2.6667, 97.9500, "Asia/Jakarta"},
+
+	// SUMATERA UTARA (8 kota)
+	"medan":          {"Medan", "Sumatera Utara", 3.5952, 98.6722, "Asia/Jakarta"},
+	"binjai":         {"Binjai", "Sumatera Utara", 3.6000, 98.4833, "Asia/Jakarta"},
+	"tebing tinggi":  {"Tebing Tinggi", "Sumatera Utara", 3.3281, 99.1625, "Asia/Jakarta"},
+	"pematangsiantar": {"Pematangsiantar", "Sumatera Utara", 2.9667, 99.0667, "Asia/Jakarta"},
+	"tanjungbalai":   {"Tanjungbalai", "Sumatera Utara", 2.9667, 99.8000, "Asia/Jakarta"},
+	"sibolga":        {"Sibolga", "Sumatera Utara", 1.7425, 98.7792, "Asia/Jakarta"},
+	"padangsidimpuan": {"Padangsidimpuan", "Sumatera Utara", 1.3833, 99.2667, "Asia/Jakarta"},
+	"gunungsitoli":   {"Gunungsitoli", "Sumatera Utara", 1.2833, 97.6167, "Asia/Jakarta"},
+
+	// SUMATERA BARAT (4 kota)
+	"padang":         {"Padang", "Sumatera Barat", -0.9471, 100.4172, "Asia/Jakarta"},
+	"bukittinggi":    {"Bukittinggi", "Sumatera Barat", -0.3056, 100.3692, "Asia/Jakarta"},
+	"payakumbuh":     {"Payakumbuh", "Sumatera Barat", -0.2167, 100.6333, "Asia/Jakarta"},
+	"padangpanjang":  {"Padangpanjang", "Sumatera Barat", -0.4667, 100.4000, "Asia/Jakarta"},
+
+	// RIAU (3 kota)
+	"pekanbaru":      {"Pekanbaru", "Riau", 0.5071, 101.4478, "Asia/Jakarta"},
+	"dumai":          {"Dumai", "Riau", 1.6667, 101.4500, "Asia/Jakarta"},
+	"batam":          {"Batam", "Kepulauan Riau", 1.1304, 104.0530, "Asia/Jakarta"},
+
+	// JAMBI & BENGKULU (3 kota)
+	"jambi":          {"Jambi", "Jambi", -1.6101, 103.6131, "Asia/Jakarta"},
+	"bengkulu":       {"Bengkulu", "Bengkulu", -3.7928, 102.2607, "Asia/Jakarta"},
+	"curup":          {"Curup", "Bengkulu", -3.4667, 102.5167, "Asia/Jakarta"},
+
+	// SUMATERA SELATAN (3 kota)
+	"palembang":      {"Palembang", "Sumatera Selatan", -2.9909, 104.7566, "Asia/Jakarta"},
+	"lubuklinggau":   {"Lubuklinggau", "Sumatera Selatan", -3.3000, 102.8667, "Asia/Jakarta"},
+	"prabumulih":     {"Prabumulih", "Sumatera Selatan", -3.4333, 104.2333, "Asia/Jakarta"},
+
+	// LAMPUNG (2 kota)
+	"bandar lampung": {"Bandar Lampung", "Lampung", -5.4292, 105.2610, "Asia/Jakarta"},
+	"metro":          {"Metro", "Lampung", -5.1133, 105.3067, "Asia/Jakarta"},
+
+	// JAWA BARAT (5 kota)
+	"bandung":        {"Bandung", "Jawa Barat", -6.9175, 107.6191, "Asia/Jakarta"},
+	"bekasi":         {"Bekasi", "Jawa Barat", -6.2383, 106.9756, "Asia/Jakarta"},
+	"bogor":          {"Bogor", "Jawa Barat", -6.5944, 106.7892, "Asia/Jakarta"},
+	"depok":          {"Depok", "Jawa Barat", -6.4025, 106.7942, "Asia/Jakarta"},
+	"cirebon":        {"Cirebon", "Jawa Barat", -6.7063, 108.5571, "Asia/Jakarta"},
+
+	// DKI JAKARTA (1 kota)
+	"jakarta":        {"Jakarta", "DKI Jakarta", -6.2088, 106.8456, "Asia/Jakarta"},
+
+	// JAWA TENGAH (4 kota)
+	"semarang":       {"Semarang", "Jawa Tengah", -6.9667, 110.4167, "Asia/Jakarta"},
+	"solo":           {"Solo", "Jawa Tengah", -7.5663, 110.8281, "Asia/Jakarta"},
+	"yogyakarta":     {"Yogyakarta", "DI Yogyakarta", -7.8014, 110.3647, "Asia/Jakarta"},
+	"magelang":       {"Magelang", "Jawa Tengah", -7.4697, 110.2175, "Asia/Jakarta"},
+
+	// JAWA TIMUR (4 kota)
+	"surabaya":       {"Surabaya", "Jawa Timur", -7.2504, 112.7688, "Asia/Jakarta"},
+	"malang":         {"Malang", "Jawa Timur", -7.9797, 112.6304, "Asia/Jakarta"},
+	"kediri":         {"Kediri", "Jawa Timur", -7.8167, 112.0167, "Asia/Jakarta"},
+	"probolinggo":    {"Probolinggo", "Jawa Timur", -7.7542, 113.2159, "Asia/Jakarta"},
+
+	// BALI & NUSA TENGGARA (3 kota)
+	"denpasar":       {"Denpasar", "Bali", -8.6500, 115.2167, "Asia/Makassar"},
+	"mataram":        {"Mataram", "Nusa Tenggara Barat", -8.5833, 116.1167, "Asia/Makassar"},
+	"kupang":         {"Kupang", "Nusa Tenggara Timur", -10.1718, 123.6075, "Asia/Makassar"},
+
+	// KALIMANTAN (4 kota)
+	"pontianak":      {"Pontianak", "Kalimantan Barat", 0.0263, 109.3425, "Asia/Jakarta"},
+	"banjarmasin":    {"Banjarmasin", "Kalimantan Selatan", -3.3194, 114.5906, "Asia/Makassar"},
+	"balikpapan":     {"Balikpapan", "Kalimantan Timur", -1.2654, 116.8312, "Asia/Makassar"},
+	"samarinda":      {"Samarinda", "Kalimantan Timur", -0.5022, 117.1536, "Asia/Makassar"},
+
+	// SULAWESI (4 kota)
+	"makassar":       {"Makassar", "Sulawesi Selatan", -5.1477, 119.4327, "Asia/Makassar"},
+	"manado":         {"Manado", "Sulawesi Utara", 1.4748, 124.8421, "Asia/Makassar"},
+	"palu":           {"Palu", "Sulawesi Tengah", -0.8917, 119.8707, "Asia/Makassar"},
+	"kendari":        {"Kendari", "Sulawesi Tenggara", -3.9450, 122.4989, "Asia/Makassar"},
+
+	// MALUKU & PAPUA (3 kota)
+	"ambon":          {"Ambon", "Maluku", -3.6954, 128.1814, "Asia/Jayapura"},
+	"jayapura":       {"Jayapura", "Papua", -2.5337, 140.7181, "Asia/Jayapura"},
+	"sorong":         {"Sorong", "Papua Barat", -0.8833, 131.2500, "Asia/Jayapura"},
+}
 
 func main() {
 	// Initialize database connection
@@ -111,13 +219,14 @@ func main() {
 	}
 
 	log.Printf("🚀 Prayer Times API v%s starting on port %s", VERSION, port)
+	log.Printf("📍 Loaded %d Indonesian cities", len(indonesiaCities))
 	log.Fatal(http.ListenAndServe(":"+port, handler))
 }
 
 func createTables() {
 	query := `
 	CREATE TABLE IF NOT EXISTS prayer_times_cache (
-		id SERIAL PRIMARY KEY,
+		id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 		date DATE NOT NULL,
 		fajr TIME NOT NULL,
 		sunrise TIME NOT NULL,
@@ -173,55 +282,17 @@ func healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 		Time:     time.Now().Format(time.RFC3339),
 		Database: dbStatus,
 		Version:  VERSION,
+		Cities:   len(indonesiaCities),
 	}
 	
 	json.NewEncoder(w).Encode(response)
 }
 
-// Indonesian cities with accurate coordinates
-var indonesiaCities = map[string][3]interface{}{
-	"jakarta":       {-6.2088, 106.8456, "Jakarta"},
-	"bandung":       {-6.9175, 107.6191, "Bandung"},
-	"surabaya":      {-7.2504, 112.7688, "Surabaya"},
-	"medan":         {3.5952, 98.6722, "Medan"},
-	"banda aceh":    {5.5483, 95.3238, "Banda Aceh"},
-	"lhokseumawe":   {5.1870, 97.1413, "Lhokseumawe"},
-	"yogyakarta":    {-7.8014, 110.3647, "Yogyakarta"},
-	"makassar":      {-5.1477, 119.4327, "Makassar"},
-	"denpasar":      {-8.65, 115.2167, "Denpasar"},
-	"palembang":     {-2.9909, 104.7566, "Palembang"},
-	"semarang":      {-6.9667, 110.4167, "Semarang"},
-	"balikpapan":    {-1.2654, 116.8312, "Balikpapan"},
-	"jayapura":      {-2.5337, 140.7181, "Jayapura"},
-	"pontianak":     {0.0263, 109.3425, "Pontianak"},
-	"padang":        {-0.9471, 100.4172, "Padang"},
-	"pekanbaru":     {0.5071, 101.4478, "Pekanbaru"},
-	"banjarmasin":   {-3.3194, 114.5906, "Banjarmasin"},
-	"manado":        {1.4748, 124.8421, "Manado"},
-	"kupang":        {-10.1718, 123.6075, "Kupang"},
-	"ambon":         {-3.6954, 128.1814, "Ambon"},
-	"solo":          {-7.5663, 110.8281, "Solo"},
-	"malang":        {-7.9797, 112.6304, "Malang"},
-	"samarinda":     {-0.5022, 117.1536, "Samarinda"},
-	"jambi":         {-1.6101, 103.6131, "Jambi"},
-	"bengkulu":      {-3.7928, 102.2607, "Bengkulu"},
-	"lampung":       {-5.4292, 105.2610, "Bandar Lampung"},
-	"mataram":       {-8.5833, 116.1167, "Mataram"},
-	"palu":          {-0.8917, 119.8707, "Palu"},
-	"kendari":       {-3.9450, 122.4989, "Kendari"},
-	"gorontalo":     {0.5435, 123.0682, "Gorontalo"},
-}
-
 func getCitiesHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	
-	var cities []map[string]interface{}
-	for _, cityData := range indonesiaCities {
-		city := map[string]interface{}{
-			"name":      cityData[2].(string),
-			"latitude":  cityData[0].(float64),
-			"longitude": cityData[1].(float64),
-		}
+	var cities []City
+	for _, city := range indonesiaCities {
 		cities = append(cities, city)
 	}
 	
@@ -232,8 +303,8 @@ func getCoordinatesByCity(city string) (float64, float64, string, error) {
 	cityLower := strings.ToLower(city)
 	for k, v := range indonesiaCities {
 		if strings.Contains(k, cityLower) || strings.Contains(cityLower, k) || 
-		   strings.Contains(strings.ToLower(v[2].(string)), cityLower) {
-			return v[0].(float64), v[1].(float64), v[2].(string), nil
+		   strings.Contains(strings.ToLower(v.Name), cityLower) {
+			return v.Latitude, v.Longitude, v.Name, nil
 		}
 	}
 	return 0, 0, "", fmt.Errorf("city not found")

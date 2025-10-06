@@ -11,7 +11,7 @@ class ApiClient {
   private baseURL: string;
   private timeout: number;
 
-  constructor(baseURL: string = API_URL, timeout: number = 10000) {
+  constructor(baseURL: string = API_URL, timeout: number = 15000) {
     this.baseURL = baseURL;
     this.timeout = timeout;
   }
@@ -43,7 +43,7 @@ class ApiClient {
       
       if (error instanceof Error) {
         if (error.name === 'AbortError') {
-          throw new Error('Request timeout - server tidak merespons');
+          throw new Error('Request timeout - server tidak merespons dalam 15 detik');
         }
         throw error;
       }
@@ -86,6 +86,7 @@ class ApiClient {
     time: string;
     database: string;
     version: string;
+    cities_count: number;
   }> {
     return this.request('/api/health');
   }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapPin, Navigation, Search, Loader2 } from 'lucide-react';
+import { MapPin, Navigation, Search, Loader2, Globe } from 'lucide-react';
 import { useCities } from '../hooks/useApi';
 import type { Location, City } from '../types/prayer';
 
@@ -37,7 +37,7 @@ export function LocationSelector({
           reject,
           {
             enableHighAccuracy: true,
-            timeout: 10000,
+            timeout: 15000,
             maximumAge: 300000, // 5 minutes
           }
         );
@@ -56,13 +56,13 @@ export function LocationSelector({
       if (err instanceof GeolocationPositionError) {
         switch (err.code) {
           case err.PERMISSION_DENIED:
-            errorMessage = 'Akses lokasi ditolak. Silakan aktifkan izin lokasi.';
+            errorMessage = 'Akses lokasi ditolak. Silakan aktifkan izin lokasi di browser.';
             break;
           case err.POSITION_UNAVAILABLE:
-            errorMessage = 'Lokasi tidak tersedia. Periksa GPS Anda.';
+            errorMessage = 'Lokasi tidak tersedia. Periksa GPS dan koneksi internet.';
             break;
           case err.TIMEOUT:
-            errorMessage = 'Timeout mendapatkan lokasi. Coba lagi.';
+            errorMessage = 'Timeout mendapatkan lokasi. Coba lagi atau pilih kota manual.';
             break;
         }
       }
@@ -77,7 +77,7 @@ export function LocationSelector({
     const location: Location = {
       latitude: city.latitude,
       longitude: city.longitude,
-      city: city.name,
+      city: `${city.name}, ${city.province}`,
     };
     
     onLocationChange(location);
@@ -86,8 +86,8 @@ export function LocationSelector({
   };
 
   const handleManualInput = () => {
-    const lat = prompt('Masukkan Latitude:', currentLocation.latitude.toString());
-    const lon = prompt('Masukkan Longitude:', currentLocation.longitude.toString());
+    const lat = prompt('Masukkan Latitude (-90 sampai 90):', currentLocation.latitude.toString());
+    const lon = prompt('Masukkan Longitude (-180 sampai 180):', currentLocation.longitude.toString());
     const city = prompt('Masukkan Nama Kota (opsional):', currentLocation.city || '');
 
     if (lat && lon) {
@@ -95,12 +95,12 @@ export function LocationSelector({
       const longitude = parseFloat(lon);
       
       if (isNaN(latitude) || isNaN(longitude)) {
-        setError('Koordinat tidak valid');
+        setError('Koordinat tidak valid. Masukkan angka yang benar.');
         return;
       }
       
       if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
-        setError('Koordinat di luar jangkauan');
+        setError('Koordinat di luar jangkauan. Latitude: -90 sampai 90, Longitude: -180 sampai 180');
         return;
       }
 
@@ -109,30 +109,48 @@ export function LocationSelector({
         longitude,
         city: city || 'Lokasi Kustom',
       });
+      setError('');
     }
   };
 
   const filteredCities = cities?.filter(city =>
-    city.name.toLowerCase().includes(searchTerm.toLowerCase())
+    city.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    city.province.toLowerCase().includes(searchTerm.toLowerCase())
   ) || [];
+
+  // Group cities by province
+  const citiesByProvince = filteredCities.reduce((acc, city) => {
+    if (!acc[city.province]) {
+      acc[city.province] = [];
+    }
+    acc[city.province].push(city);
+    return acc;
+  }, {} as Record<string, City[]>);
 
   return (
     <div className={`bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 p-6 ${className}`}>
       <div className="flex items-center space-x-3 mb-4">
         <MapPin className="w-6 h-6 text-blue-600" />
         <h2 className="text-xl font-semibold text-gray-800">Pilih Lokasi</h2>
+        <div className="ml-auto text-sm text-gray-500">
+          {cities?.length || 0} kota tersedia
+        </div>
       </div>
 
       {/* Current Location Display */}
-      <div className="bg-blue-50 rounded-lg p-3 mb-4">
-        <div className="flex items-center space-x-2 text-blue-800">
-          <MapPin className="w-4 h-4" />
+      <div className="bg-blue-50 rounded-lg p-4 mb-4">
+        <div className="flex items-center space-x-2 text-blue-800 mb-2">
+          <Globe className="w-4 h-4" />
           <span className="font-medium">
             {currentLocation.city || 'Lokasi Kustom'}
           </span>
         </div>
-        <div className="text-sm text-blue-600 mt-1">
-          {currentLocation.latitude.toFixed(4)}, {currentLocation.longitude.toFixed(4)}
+        <div className="text-sm text-blue-600">
+          📍 {currentLocation.latitude.toFixed(4)}, {currentLocation.longitude.toFixed(4)}
+        </div>
+        <div className="text-xs text-blue-500 mt-1">
+          Timezone: {currentLocation.longitude < 105 ? 'WIB (UTC+7)' : 
+                    currentLocation.longitude < 120 ? 'WITA (UTC+8)' : 'WIT (UTC+9)'}
         </div>
       </div>
 
@@ -153,10 +171,11 @@ export function LocationSelector({
 
         <button
           onClick={() => setShowCityList(!showCityList)}
-          className="flex items-center justify-center space-x-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+          disabled={citiesLoading}
+          className="flex items-center justify-center space-x-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
         >
           <Search className="w-4 h-4" />
-          <span>Pilih Kota</span>
+          <span>{citiesLoading ? 'Memuat...' : 'Pilih Kota'}</span>
         </button>
 
         <button
@@ -175,7 +194,7 @@ export function LocationSelector({
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
-              placeholder="Cari kota..."
+              placeholder="Cari kota atau provinsi..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -183,28 +202,46 @@ export function LocationSelector({
           </div>
 
           {citiesLoading ? (
-            <div className="flex items-center justify-center py-4">
+            <div className="flex items-center justify-center py-8">
               <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
               <span className="ml-2 text-gray-600">Memuat kota...</span>
             </div>
           ) : (
-            <div className="max-h-48 overflow-y-auto space-y-1">
-              {filteredCities.length > 0 ? (
-                filteredCities.map((city) => (
-                  <button
-                    key={`${city.name}-${city.latitude}-${city.longitude}`}
-                    onClick={() => handleCitySelect(city)}
-                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-blue-50 transition-colors"
-                  >
-                    <div className="font-medium text-gray-800">{city.name}</div>
-                    <div className="text-sm text-gray-500">
-                      {city.latitude.toFixed(4)}, {city.longitude.toFixed(4)}
+            <div className="max-h-64 overflow-y-auto space-y-3">
+              {Object.keys(citiesByProvince).length > 0 ? (
+                Object.entries(citiesByProvince).map(([province, provinceCities]) => (
+                  <div key={province} className="space-y-1">
+                    <div className="text-sm font-semibold text-gray-700 px-2 py-1 bg-gray-100 rounded">
+                      {province} ({provinceCities.length} kota)
                     </div>
-                  </button>
+                    {provinceCities.map((city) => (
+                      <button
+                        key={`${city.name}-${city.latitude}-${city.longitude}`}
+                        onClick={() => handleCitySelect(city)}
+                        className="w-full text-left px-3 py-2 rounded-lg hover:bg-blue-50 transition-colors border-l-2 border-transparent hover:border-blue-400"
+                      >
+                        <div className="font-medium text-gray-800">{city.name}</div>
+                        <div className="text-sm text-gray-500">
+                          📍 {city.latitude.toFixed(4)}, {city.longitude.toFixed(4)} • {city.timezone}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
                 ))
               ) : (
-                <div className="text-center py-4 text-gray-500">
-                  {searchTerm ? 'Kota tidak ditemukan' : 'Tidak ada kota tersedia'}
+                <div className="text-center py-8 text-gray-500">
+                  {searchTerm ? (
+                    <div>
+                      <Search className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                      <p>Tidak ada kota yang ditemukan untuk "{searchTerm}"</p>
+                      <p className="text-sm mt-1">Coba kata kunci lain atau gunakan input manual</p>
+                    </div>
+                  ) : (
+                    <div>
+                      <MapPin className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                      <p>Tidak ada kota tersedia</p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -215,9 +252,20 @@ export function LocationSelector({
       {/* Error Message */}
       {error && (
         <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-3">
-          <p className="text-sm text-red-700">{error}</p>
+          <div className="flex items-start space-x-2">
+            <div className="text-red-500 mt-0.5">⚠️</div>
+            <div>
+              <p className="text-sm text-red-700 font-medium">Error:</p>
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          </div>
         </div>
       )}
+
+      {/* Info */}
+      <div className="mt-4 text-xs text-gray-500 text-center">
+        💡 Tip: Gunakan "Lokasi Saya" untuk akurasi terbaik, atau pilih kota terdekat
+      </div>
     </div>
   );
 }

@@ -1,10 +1,11 @@
-# 🕌 Aplikasi Jadwal Shalat Indonesia
+# 🕌 Aplikasi Jadwal Shalat Indonesia v2.1.0
 
-Aplikasi jadwal shalat modern dengan backend API Golang dan frontend React, mendukung pencarian lokasi otomatis/manual, serta data kota Indonesia lengkap tanpa ketergantungan API eksternal.
+Aplikasi jadwal shalat modern dengan backend API Golang dan frontend React, mendukung **50+ kota Indonesia** termasuk seluruh daerah Aceh, pencarian lokasi otomatis/manual, serta data lengkap tanpa ketergantungan API eksternal.
 
 ## 📋 Daftar Isi
 
 - [Fitur Utama](#-fitur-utama)
+- [Kota yang Didukung](#-kota-yang-didukung)
 - [Arsitektur Sistem](#-arsitektur-sistem)
 - [Screenshot](#-screenshot)
 - [Prasyarat](#-prasyarat)
@@ -23,7 +24,7 @@ Aplikasi jadwal shalat modern dengan backend API Golang dan frontend React, mend
 
 ### 🎯 **Fitur Inti**
 - ✅ **Jadwal Shalat Akurat** - Perhitungan menggunakan metode Kementerian Agama Indonesia
-- ✅ **30+ Kota Indonesia** - Data kota lengkap dari Sabang sampai Merauke
+- ✅ **50+ Kota Indonesia** - Data lengkap dari Sabang sampai Merauke, fokus Aceh
 - ✅ **Deteksi Lokasi Otomatis** - GPS/Geolocation dengan fallback manual
 - ✅ **Real-time Updates** - Auto-refresh setiap 5 menit
 - ✅ **Current Prayer Info** - Info shalat saat ini dan countdown ke shalat berikutnya
@@ -37,6 +38,35 @@ Aplikasi jadwal shalat modern dengan backend API Golang dan frontend React, mend
 - ✅ **Type Safety** - Full TypeScript implementation
 - ✅ **Production Ready** - Docker support dan deployment guides
 - ✅ **Public API** - RESTful API yang bisa digunakan aplikasi lain
+
+## 🏙️ Kota yang Didukung
+
+### **ACEH (15 kota/kabupaten)**
+- Banda Aceh, Lhokseumawe, Langsa, Sabang
+- Meulaboh, Sigli, Bireuen, Takengon
+- Calang, Jantho, Kutacane, Blangkejeren
+- Idi, Tapaktuan, Subulussalam
+
+### **SUMATERA (15 kota)**
+- **Sumatera Utara**: Medan, Binjai, Tebing Tinggi, Pematangsiantar, Tanjungbalai, Sibolga, Padangsidimpuan, Gunungsitoli
+- **Sumatera Barat**: Padang, Bukittinggi, Payakumbuh, Padangpanjang
+- **Riau**: Pekanbaru, Dumai, Batam
+- **Jambi & Bengkulu**: Jambi, Bengkulu, Curup
+- **Sumatera Selatan**: Palembang, Lubuklinggau, Prabumulih
+- **Lampung**: Bandar Lampung, Metro
+
+### **JAWA (14 kota)**
+- **Jawa Barat**: Bandung, Bekasi, Bogor, Depok, Cirebon
+- **DKI Jakarta**: Jakarta
+- **Jawa Tengah**: Semarang, Solo, Magelang
+- **DI Yogyakarta**: Yogyakarta
+- **Jawa Timur**: Surabaya, Malang, Kediri, Probolinggo
+
+### **INDONESIA TIMUR (10 kota)**
+- **Bali & Nusa Tenggara**: Denpasar, Mataram, Kupang
+- **Kalimantan**: Pontianak, Banjarmasin, Balikpapan, Samarinda
+- **Sulawesi**: Makassar, Manado, Palu, Kendari
+- **Maluku & Papua**: Ambon, Jayapura, Sorong
 
 ## 🏗️ Arsitektur Sistem
 
@@ -119,7 +149,7 @@ npm install
      latitude DECIMAL(10,6) NOT NULL,
      longitude DECIMAL(10,6) NOT NULL,
      city VARCHAR(100),
-     created_at TIMESTAMP DEFAULT now(),
+     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
      UNIQUE(date, latitude, longitude)
    );
 
@@ -298,7 +328,8 @@ GET /api/health
   "status": "healthy",
   "time": "2024-01-04T10:30:00Z",
   "database": "connected",
-  "version": "2.0.0"
+  "version": "2.1.0",
+  "cities_count": 53
 }
 ```
 
@@ -311,14 +342,18 @@ GET /api/cities
 ```json
 [
   {
-    "name": "Jakarta",
-    "latitude": -6.2088,
-    "longitude": 106.8456
+    "name": "Banda Aceh",
+    "province": "Aceh",
+    "latitude": 5.5483,
+    "longitude": 95.3238,
+    "timezone": "Asia/Jakarta"
   },
   {
-    "name": "Bandung", 
-    "latitude": -6.9175,
-    "longitude": 107.6191
+    "name": "Lhokseumawe",
+    "province": "Aceh", 
+    "latitude": 5.1870,
+    "longitude": 97.1413,
+    "timezone": "Asia/Jakarta"
   }
 ]
 ```
@@ -330,7 +365,7 @@ GET /api/prayer-times?latitude={lat}&longitude={lon}&date={date}
 ```
 
 **Parameters:**
-- `city` (optional): Nama kota (e.g., "Jakarta")
+- `city` (optional): Nama kota (e.g., "Banda Aceh")
 - `latitude` (optional): Latitude lokasi
 - `longitude` (optional): Longitude lokasi  
 - `date` (optional): Tanggal (YYYY-MM-DD, default: hari ini)
@@ -345,9 +380,9 @@ GET /api/prayer-times?latitude={lat}&longitude={lon}&date={date}
   "asr": "15:15",
   "maghrib": "18:00",
   "isha": "19:15",
-  "latitude": -6.2088,
-  "longitude": 106.8456,
-  "city": "Jakarta"
+  "latitude": 5.5483,
+  "longitude": 95.3238,
+  "city": "Banda Aceh"
 }
 ```
 
@@ -370,8 +405,8 @@ GET /api/prayer-times/current?latitude={lat}&longitude={lon}
     "asr": "15:15",
     "maghrib": "18:00",
     "isha": "19:15",
-    "latitude": -6.2088,
-    "longitude": 106.8456
+    "latitude": 5.5483,
+    "longitude": 95.3238
   }
 }
 ```
@@ -380,13 +415,13 @@ GET /api/prayer-times/current?latitude={lat}&longitude={lon}
 
 #### JavaScript/TypeScript
 ```javascript
-// Get prayer times
-const response = await fetch('http://localhost:8080/api/prayer-times?city=Jakarta');
+// Get prayer times for Banda Aceh
+const response = await fetch('http://localhost:8080/api/prayer-times?city=Banda Aceh');
 const data = await response.json();
 console.log(data);
 
 // Get current prayer info
-const currentResponse = await fetch('http://localhost:8080/api/prayer-times/current?latitude=-6.2088&longitude=106.8456');
+const currentResponse = await fetch('http://localhost:8080/api/prayer-times/current?latitude=5.5483&longitude=95.3238');
 const currentData = await currentResponse.json();
 console.log(currentData);
 ```
@@ -395,9 +430,9 @@ console.log(currentData);
 ```python
 import requests
 
-# Get prayer times
+# Get prayer times for Lhokseumawe
 response = requests.get('http://localhost:8080/api/prayer-times', params={
-    'city': 'Jakarta'
+    'city': 'Lhokseumawe'
 })
 data = response.json()
 print(data)
@@ -406,13 +441,13 @@ print(data)
 #### cURL
 ```bash
 # Get prayer times by city
-curl "http://localhost:8080/api/prayer-times?city=Jakarta"
+curl "http://localhost:8080/api/prayer-times?city=Langsa"
 
 # Get prayer times by coordinates
-curl "http://localhost:8080/api/prayer-times?latitude=-6.2088&longitude=106.8456"
+curl "http://localhost:8080/api/prayer-times?latitude=4.4683&longitude=97.9683"
 
 # Get current prayer info
-curl "http://localhost:8080/api/prayer-times/current?latitude=-6.2088&longitude=106.8456"
+curl "http://localhost:8080/api/prayer-times/current?latitude=4.4683&longitude=97.9683"
 ```
 
 ## 🚀 Deployment
@@ -732,3 +767,24 @@ Jika Anda mengalami masalah atau memiliki pertanyaan:
 **Dibuat dengan ❤️ untuk umat Muslim Indonesia**
 
 *Semoga aplikasi ini bermanfaat untuk membantu ibadah shalat kita semua. Aamiin.* 🤲
+
+## 🆕 Changelog v2.1.0
+
+### ✨ New Features
+- ➕ **50+ Kota Indonesia** - Tambahan 20+ kota baru termasuk seluruh Aceh
+- 🔄 **Enhanced Location Selector** - UI yang lebih baik dengan grouping by province
+- 📊 **Improved API Status** - Monitoring yang lebih detail dengan cities count
+- 🎯 **Better Error Handling** - Error messages yang lebih informatif
+- ⚡ **Performance Improvements** - Timeout yang lebih optimal (15 detik)
+
+### 🐛 Bug Fixes
+- 🔧 Fixed geolocation timeout issues
+- 🔧 Improved city search functionality
+- 🔧 Better error recovery mechanisms
+- 🔧 Enhanced responsive design
+
+### 🏗️ Technical Improvements
+- 📦 Updated dependencies to latest versions
+- 🔒 Enhanced security configurations
+- 📝 Comprehensive documentation updates
+- 🧪 Better type safety throughout the app
