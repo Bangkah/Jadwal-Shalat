@@ -145,10 +145,9 @@ export function useHealthCheck(): UseApiState<HealthStatus> {
   return { ...state, refetch };
 }
 
-// Auto-refresh hook for real-time updates
 export function useAutoRefresh<T>(
   hook: () => UseApiState<T>,
-  intervalMs: number = 60000 // 1 minute default
+  intervalMs: number = 60000
 ): UseApiState<T> {
   const result = hook();
 

@@ -1,11 +1,6 @@
-import type { PrayerTimes, CurrentPrayerInfo, City } from '../types/prayer';
+import type { PrayerTimes, CurrentPrayerInfo, City, HealthStatus } from '../types/prayer';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
-
-export interface ApiResponse<T> {
-  data?: T;
-  error?: string;
-}
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 class ApiClient {
   private baseURL: string;
@@ -26,6 +21,7 @@ class ApiClient {
         signal: controller.signal,
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
           ...options.headers,
         },
       });
@@ -81,49 +77,21 @@ class ApiClient {
     return this.request<City[]>('/api/cities');
   }
 
-  async checkHealth(): Promise<{
-    status: string;
-    time: string;
-    database: string;
-    version: string;
-    cities_count: number;
-  }> {
-    return this.request('/api/health');
+  async getCitiesGrouped(): Promise<Record<string, City[]>> {
+    return this.request<Record<string, City[]>>('/api/cities/grouped');
+  }
+
+  async getProvinces(): Promise<string[]> {
+    return this.request<string[]>('/api/cities/provinces');
+  }
+
+  async checkHealth(): Promise<HealthStatus> {
+    return this.request<HealthStatus>('/api/health');
   }
 }
 
-// Create singleton instance
 export const apiClient = new ApiClient();
 
-// Legacy functions for backward compatibility
-export async function getPrayerTimes(
-  city?: string,
-  date?: string
-): Promise<PrayerTimes> {
-  return apiClient.getPrayerTimes({ city, date });
-}
-
-export async function getCurrentPrayer(
-  latitude: number,
-  longitude: number
-): Promise<CurrentPrayerInfo> {
-  return apiClient.getCurrentPrayer(latitude, longitude);
-}
-
-export async function getCities(): Promise<City[]> {
-  return apiClient.getCities();
-}
-
-export async function checkAPIHealth(): Promise<boolean> {
-  try {
-    const health = await apiClient.checkHealth();
-    return health.status === 'healthy';
-  } catch {
-    return false;
-  }
-}
-
-// Utility functions
 export function formatPrayerTime(time: string): string {
   try {
     const [hours, minutes] = time.split(':');
@@ -135,32 +103,5 @@ export function formatPrayerTime(time: string): string {
     return `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`;
   } catch {
     return time;
-  }
-}
-
-export function calculateTimeUntilPrayer(prayerTime: string): string {
-  try {
-    const now = new Date();
-    const [hours, minutes] = prayerTime.split(':').map(Number);
-    
-    const prayerDate = new Date();
-    prayerDate.setHours(hours, minutes, 0, 0);
-    
-    // If prayer time has passed today, set it for tomorrow
-    if (prayerDate <= now) {
-      prayerDate.setDate(prayerDate.getDate() + 1);
-    }
-    
-    const diff = prayerDate.getTime() - now.getTime();
-    const hoursLeft = Math.floor(diff / (1000 * 60 * 60));
-    const minutesLeft = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    
-    if (hoursLeft > 0) {
-      return `${hoursLeft} jam ${minutesLeft} menit`;
-    } else {
-      return `${minutesLeft} menit`;
-    }
-  } catch {
-    return 'Tidak diketahui';
   }
 }

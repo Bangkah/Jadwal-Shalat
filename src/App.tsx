@@ -14,9 +14,9 @@ function App() {
   const [currentTime, setCurrentTime] = useState('');
   const [currentDate, setCurrentDate] = useState('');
   const [location, setLocation] = useState<Location>({
-    latitude: 5.1870,
-    longitude: 97.1413,
-    city: 'Lhokseumawe, Aceh',
+    latitude: 5.5483,
+    longitude: 95.3238,
+    city: 'Banda Aceh, Aceh',
   });
 
   // Auto-refresh prayer times every 5 minutes
@@ -59,10 +59,10 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50">
       <Header currentTime={currentTime} currentDate={currentDate} />
       
-      <main className="max-w-6xl mx-auto px-4 py-8 space-y-8">
+      <main className="max-w-7xl mx-auto px-4 py-8 space-y-8">
         {/* API Status */}
         <ApiStatus showDetails={false} className="mb-4" />
 
@@ -74,22 +74,22 @@ function App() {
 
         {/* Current Prayer Info */}
         {currentPrayerResult.data && (
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 p-6">
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6">
             <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center space-x-2">
               <span>🕌</span>
               <span>Info Shalat Real-time</span>
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
-                <div className="text-sm text-green-600 mb-1 font-medium">Shalat Saat Ini</div>
-                <div className="text-2xl font-bold text-green-700">
+              <div className="text-center p-4 bg-emerald-50 rounded-xl border border-emerald-200">
+                <div className="text-sm text-emerald-600 mb-1 font-medium">Shalat Saat Ini</div>
+                <div className="text-2xl font-bold text-emerald-700">
                   {currentPrayerResult.data.current_prayer || 'Tidak ada'}
                 </div>
-                <div className="text-xs text-green-500 mt-1">
+                <div className="text-xs text-emerald-500 mt-1">
                   {currentPrayerResult.data.current_prayer ? '🟢 Sedang berlangsung' : '⏸️ Di antara waktu shalat'}
                 </div>
               </div>
-              <div className="text-center p-4 bg-orange-50 rounded-lg border border-orange-200">
+              <div className="text-center p-4 bg-orange-50 rounded-xl border border-orange-200">
                 <div className="text-sm text-orange-600 mb-1 font-medium">Shalat Berikutnya</div>
                 <div className="text-2xl font-bold text-orange-700">
                   {currentPrayerResult.data.next_prayer}
@@ -98,7 +98,7 @@ function App() {
                   🔔 Siapkan diri untuk shalat
                 </div>
               </div>
-              <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="text-center p-4 bg-blue-50 rounded-xl border border-blue-200">
                 <div className="text-sm text-blue-600 mb-1 font-medium">Waktu Tersisa</div>
                 <div className="text-lg font-semibold text-blue-700">
                   {currentPrayerResult.data.time_until_next}
@@ -141,7 +141,7 @@ function App() {
 
         {/* Loading State */}
         {prayerTimesResult.loading && (
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 p-8">
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
             <LoadingSpinner />
             <p className="text-center text-gray-600 mt-4">
               Memuat jadwal shalat untuk {location.city}...
@@ -160,16 +160,16 @@ function App() {
         {/* No Data State */}
         {!prayerTimesResult.data && !prayerTimesResult.loading && !prayerTimesResult.error && (
           <div className="text-center py-12">
-            <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 p-8">
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
               <div className="text-6xl mb-4">🕌</div>
               <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                Selamat Datang di Aplikasi Jadwal Shalat
+                Selamat Datang di Aplikasi Jadwal Shalat Indonesia
               </h3>
               <p className="text-gray-600 mb-4">
                 Pilih lokasi Anda untuk melihat jadwal shalat yang akurat
               </p>
               <div className="text-sm text-gray-500 space-y-1">
-                <p>✅ 50+ kota di Indonesia</p>
+                <p>✅ 53 kota di Indonesia</p>
                 <p>✅ Perhitungan metode Kemenag</p>
                 <p>✅ Update real-time</p>
                 <p>✅ Timezone otomatis WIB/WITA/WIT</p>
@@ -184,9 +184,9 @@ function App() {
         </div>
 
         {/* App Info */}
-        <div className="bg-white/60 backdrop-blur-sm rounded-xl p-6 text-center">
+        <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 text-center">
           <div className="text-sm text-gray-600 space-y-2">
-            <p className="font-medium">🕌 Aplikasi Jadwal Shalat Indonesia v2.1.0</p>
+            <p className="font-medium">🕌 Jadwal Shalat Indonesia v3.0.0</p>
             <p>Dibuat dengan ❤️ untuk umat Muslim Indonesia</p>
             <p className="text-xs">
               Menggunakan perhitungan waktu shalat metode Kementerian Agama RI

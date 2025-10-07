@@ -9,10 +9,11 @@ export interface PrayerTimes {
   latitude: number;
   longitude: number;
   city?: string;
+  timezone?: string;
 }
 
 export interface CurrentPrayerInfo {
-  current_prayer: string;
+  current_prayer: string | null;
   next_prayer: string;
   time_until_next: string;
   prayer_times: PrayerTimes;
@@ -25,11 +26,13 @@ export interface Location {
 }
 
 export interface City {
+  id: number;
   name: string;
   province: string;
+  country: string;
   latitude: number;
   longitude: number;
-  timezone: string;
+  is_active: boolean;
 }
 
 export type PrayerName = 'fajr' | 'sunrise' | 'dhuhr' | 'asr' | 'maghrib' | 'isha';
@@ -43,15 +46,11 @@ export interface PrayerInfo {
   isNext: boolean;
 }
 
-export interface ApiError {
-  error: string;
-  code?: number;
-}
-
 export interface HealthStatus {
   status: 'healthy' | 'unhealthy';
   time: string;
-  database: 'connected' | 'disconnected';
   version: string;
+  database: 'connected' | 'disconnected';
   cities_count: number;
+  cache: 'working' | 'failed';
 }
